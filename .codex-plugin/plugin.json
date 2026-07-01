@@ -1,0 +1,41 @@
+{
+  "name": "spotify-plugin",
+  "version": "0.1.0",
+  "description": "CLI-first Spotify plugin for Codex with a minimal MCP surface.",
+  "author": {
+    "name": "OpenAI"
+  },
+  "license": "Proprietary",
+  "keywords": [
+    "spotify",
+    "codex",
+    "cli",
+    "mcp",
+    "pkce",
+    "playlist",
+    "queue"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Spotify",
+    "shortDescription": "CLI-first Spotify workflows for Codex",
+    "longDescription": "Spotify plugin for Codex that centers on the CLI, shared client logic, and a minimal MCP surface. It is designed for local debugging, auth setup, playlist work, and future queue and playback workflows.",
+    "developerName": "OpenAI",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "websiteURL": "https://openai.com/",
+    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
+    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "defaultPrompt": [
+      "Check Spotify auth status.",
+      "Open the Spotify CLI help.",
+      "List the current user's playlists."
+    ],
+    "brandColor": "#1DB954",
+    "screenshots": []
+  }
+}

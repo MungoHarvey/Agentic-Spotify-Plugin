@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "spotify": {
+      "command": "node",
+      "args": [
+        "./dist/mcp/server.js"
+      ],
+      "cwd": "."
+    }
+  }
+}
