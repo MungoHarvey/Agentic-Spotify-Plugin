@@ -2,14 +2,15 @@
 
 This repository is the working base for an agentic Spotify integration.
 
-It is one plugin with two supported agent surfaces today — **Claude Code / Claude Cowork** and
-**Codex** — both wrapping the same CLI-first core:
+It is one plugin, one release payload, wrapping the same CLI-first core, that installs cleanly
+across multiple agent surfaces today — **Claude Code / Claude Cowork**, **Codex**, **OpenCode**,
+**OpenClaw**, **Hermes Agent**, and generic **AGENTS.md**-reading agents:
 
 - Spotify account connection and auth lifecycle
 - Playlist reads and playlist writes
 - Queue inspection and queue add workflows
 - Track search and resolution
-- Playback diagnostics and control where Spotify permits it
+- Playback and device diagnostics (playback control is not yet implemented)
 - Optional local setup UI for auth and playback diagnostics
 
 The repository is structured so the core Spotify logic stays compact, auditable, and easy to wrap
@@ -186,9 +187,10 @@ Windows; it can resolve to the Spotify desktop app.
 
 ## Branch intent
 
-- `main`: stable project overview, release framing, and documentation.
-- `codex`: Codex implementation history for the Spotify plugin work.
-- `claude`: Claude Code conversion work — dual-manifest packaging and Claude Code install flow.
+- `main`: stable universal package — the branch that reflects the current shipped state.
+- `codex`: historical Codex-only implementation branch (pre-universal).
+- `claude`: historical Claude Code conversion branch — dual-manifest packaging and Claude Code install flow.
+- `universal`: active integration branch — changes for the universal package land here first, then merge to `main` once a phase is complete and gated.
 
 Initial priorities:
 

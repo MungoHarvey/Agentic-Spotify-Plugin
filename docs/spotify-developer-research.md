@@ -1,8 +1,8 @@
-# Spotify Developer Research for Codex Plugin
+# Spotify Developer Research for the Agentic Spotify Plugin
 
 Date: 2026-06-26
 
-This brief summarizes the Spotify Web API and Web Playback SDK surface we need for a Codex plugin that can connect to a user account, inspect playlists, and manipulate queues and playlists. It is based on the official Spotify developer documentation listed in the Sources section.
+This brief summarizes the Spotify Web API and Web Playback SDK surface we need for an agentic Spotify plugin that can connect to a user account, inspect playlists, and manipulate queues and playlists. It is based on the official Spotify developer documentation listed in the Sources section.
 
 ## Executive Summary
 
@@ -57,7 +57,7 @@ The redirect URI must match the dashboard entry exactly for the authorization re
 
 Spotify apps start in development mode. Development mode is enough for early plugin work, but it limits the app to a small set of explicitly added users. Each tester needs a Spotify account, and each account must be added in the app dashboard.
 
-This matters for Codex plugin development because any teammate or test account must be allowlisted before auth will succeed.
+This matters for plugin development because any teammate or test account must be allowlisted before auth will succeed.
 
 ### Extended Quota Mode
 
@@ -308,7 +308,7 @@ fields
 additional_types
 ```
 
-Use `fields` aggressively for Codex tools to keep responses concise. For example, a summary tool does not need every image or nested artist field.
+Use `fields` aggressively for agent tools to keep responses concise. For example, a summary tool does not need every image or nested artist field.
 
 Tool proposal:
 
@@ -575,7 +575,7 @@ Suggested UI responsibilities:
 
 The SDK is not required for playlist tools. It is primarily useful for playback and queue development, especially when the user does not already have Spotify open on another device.
 
-## Proposed Codex Plugin Tool Inventory
+## Proposed Plugin Tool Inventory
 
 ### Phase 1: Connection and Diagnostics
 
@@ -666,7 +666,7 @@ Recommended internal modules:
 - `spotify/playlists`: playlist endpoint wrappers.
 - `spotify/player`: playback and queue endpoint wrappers.
 - `spotify/search`: search and URI resolution wrappers.
-- `tools/*`: Codex-facing tool schemas and safe result shaping.
+- `tools/*`: agent-facing tool schemas and safe result shaping.
 - `web/*`: local connection UI and OAuth callback.
 
 ## Implementation Risks and Decisions

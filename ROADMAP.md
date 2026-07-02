@@ -1,10 +1,24 @@
-# Spotify Codex Plugin Roadmap
+# Spotify Plugin Roadmap
 
 This roadmap turns the Spotify developer research into staged development work. The priority is to create a reliable local connection flow first, then build playlist and queue tools on top of a tested Spotify API client.
 
+## Status
+
+Stages 0 through 7 (scaffold, auth, client foundation, diagnostics, playlist reads/writes, queue
+reads/adds, search and URI resolution) plus packaging are complete and shipped as a universal
+agentic plugin. Actual execution used phases 0-8, not a 1:1 mapping to the stages below; see
+`.advanced-plans/` for the authoritative phase history and gate verdicts. The staged plan below is
+kept as a historical record of the original build sequencing.
+
+Remaining future work, not yet scheduled as a phase:
+
+- Playback control (play/pause/next/previous/transfer).
+- Web Playback SDK setup app.
+- Optional MCP wrappers.
+
 ## Stage 0: Project Scaffold
 
-Goal: create the basic Codex plugin structure and development conventions.
+Goal: create the basic plugin structure and development conventions.
 
 Deliverables:
 
@@ -122,7 +136,7 @@ Deliverables:
 - Current user's playlist listing.
 - Playlist metadata lookup.
 - Playlist item listing with pagination.
-- Default compact playlist item shape for Codex responses.
+- Default compact playlist item shape for agent responses.
 - Optional `fields` support for advanced callers.
 
 Exit criteria:

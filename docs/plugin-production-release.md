@@ -145,7 +145,7 @@ npm run check
 
 Expected production result:
 
-- `npm test` passes (136 tests)
+- `npm test` passes (151 tests)
 - `npm run check` passes
 - `plugin-eval` reports Grade A with no fail or warn checks for `release/spotify-plugin`
 - both `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` parse successfully and their

@@ -1,10 +1,10 @@
-# Spotify Codex Plugin Architecture
+# Spotify Plugin Architecture
 
 Date: 2026-06-29
 
 ## Goals
 
-Build a Codex plugin for Spotify that is reliable, context-efficient, and easy to debug locally. The primary interface should be a CLI backed by a shared Spotify client. Codex skills should teach agents how to use the CLI for rich workflows. MCP tools should stay small and optional, exposing only stable primitives where structured tool calls are clearly useful.
+Build a universal agentic Spotify plugin that is reliable, context-efficient, and easy to debug locally. The primary interface should be a CLI backed by a shared Spotify client. Skills should teach agents how to use the CLI for rich workflows. MCP tools should stay small and optional, exposing only stable primitives where structured tool calls are clearly useful.
 
 The plugin should support the full planned Spotify surface over time:
 
@@ -29,7 +29,7 @@ The plugin should support the full planned Spotify surface over time:
 The architecture is CLI-first:
 
 ```text
-Codex skill instructions
+Skill instructions
         |
         v
 spotify CLI commands
@@ -181,7 +181,7 @@ The CLI should expose the granted scopes in `spotify auth status`. If a command 
 
 ## CLI Design
 
-The CLI is the broad integration surface. Commands should support both human-readable output and JSON output for Codex workflows.
+The CLI is the broad integration surface. Commands should support both human-readable output and JSON output for agent workflows.
 
 Core command groups:
 
@@ -214,7 +214,7 @@ spotify album get <album_id>
 spotify artist get <artist_id>
 ```
 
-All commands that Codex skills may parse should support:
+All commands that skills may parse should support:
 
 ```text
 --json
@@ -224,7 +224,7 @@ Write commands should return stable identifiers such as playlist `snapshot_id`, 
 
 ## Skill Design
 
-The Spotify skill should be the primary context-efficient interface for Codex. It should load concise instructions first, then route to reference files only when a task needs them.
+The Spotify skill should be the primary context-efficient interface for the agent. It should load concise instructions first, then route to reference files only when a task needs them.
 
 The skill should cover:
 
@@ -296,7 +296,7 @@ Required behaviors:
 - Replace playlist contents.
 - Return `snapshot_id` from mutation operations.
 
-Search-driven writes should not silently choose ambiguous tracks. The skill should instruct Codex to show candidates and ask the user to select unless the user explicitly requests best-effort behavior.
+Search-driven writes should not silently choose ambiguous tracks. The skill should instruct the agent to show candidates and ask the user to select unless the user explicitly requests best-effort behavior.
 
 ## Queue and Playback Design
 
@@ -356,7 +356,7 @@ Examples:
 - `429`: rate limited; retry after the returned delay.
 - Network failure: Spotify unavailable, local network issue, or callback server binding failure.
 
-CLI write commands should exit non-zero on failed writes and should include enough detail for Codex to decide whether to retry, ask the user, or stop.
+CLI write commands should exit non-zero on failed writes and should include enough detail for the agent to decide whether to retry, ask the user, or stop.
 
 ## Testing Strategy
 
