@@ -24,6 +24,78 @@ Current documentation:
 - [Spotify auth setup](docs/spotify-auth-setup.md): local PKCE setup, commands, and safety notes.
 - [Plugin production release](docs/plugin-production-release.md): lean release structure, validation gates, and personal marketplace install flow.
 
+## Agent-Centered Install
+
+Use this flow from a fresh Codex session after cloning the repo. It installs the lean Codex plugin
+and the separate CLI runtime into the user's personal plugin area.
+
+```powershell
+$repo = Resolve-Path .
+$pluginSource = Join-Path $env:USERPROFILE "plugins\spotify-plugin"
+$runtimeSource = Join-Path $env:USERPROFILE "plugins\spotify-plugin-runtime"
+$marketplaceDir = Join-Path $env:USERPROFILE ".agents\plugins"
+$marketplacePath = Join-Path $marketplaceDir "marketplace.json"
+
+New-Item -ItemType Directory -Force -Path $pluginSource,$runtimeSource,$marketplaceDir | Out-Null
+Copy-Item -Path (Join-Path $repo "release\spotify-plugin\*") -Destination $pluginSource -Recurse -Force
+if (Test-Path $runtimeSource) { Remove-Item -LiteralPath $runtimeSource -Recurse -Force }
+Copy-Item -Path (Join-Path $repo "release\spotify-plugin-runtime") -Destination $runtimeSource -Recurse -Force
+```
+
+Ensure the personal marketplace contains the plugin entry. If the file is missing, create it:
+
+```powershell
+if (-not (Test-Path $marketplacePath)) {
+  @'
+{
+  "name": "personal",
+  "interface": {
+    "displayName": "Personal"
+  },
+  "plugins": [
+    {
+      "name": "spotify-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/spotify-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
+'@ | Set-Content -LiteralPath $marketplacePath
+}
+```
+
+Then register or refresh it in Codex:
+
+```powershell
+codex plugin add spotify-plugin@personal --json
+```
+
+The installed CLI can be called from any workspace:
+
+```powershell
+& "$env:USERPROFILE\plugins\spotify-plugin\bin\spotify.ps1" auth status --json
+& "$env:USERPROFILE\plugins\spotify-plugin\bin\spotify.ps1" me --json
+& "$env:USERPROFILE\plugins\spotify-plugin\bin\spotify.ps1" playlists list --json
+```
+
+For Spotify auth, create a Spotify Developer app with redirect URI
+`http://127.0.0.1:43210/callback`, then set:
+
+```powershell
+[Environment]::SetEnvironmentVariable("SPOTIFY_CLIENT_ID", "<spotify-client-id>", "User")
+[Environment]::SetEnvironmentVariable("SPOTIFY_REDIRECT_URI", "http://127.0.0.1:43210/callback", "User")
+```
+
+Start a new Codex thread after install so plugin skills are loaded. Do not use bare `spotify` on
+Windows; it can resolve to the Spotify desktop app.
+
 Branch intent:
 
 - `main`: project overview, release framing, and documentation.
