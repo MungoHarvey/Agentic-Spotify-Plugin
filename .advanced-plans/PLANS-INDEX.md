@@ -11,6 +11,7 @@ Date: 2026-06-29
 - [Phase 4: Account, Device, Playback, and Queue Diagnostics](phases/phase-4/plan.md)
 - [Phase 5: Playlist Reads](phases/phase-5/plan.md)
 - [Phase 6: Playlist Writes](phases/phase-6/plan.md)
+- [Phase 7: Claude Code Plugin Conversion and Marketplace Distribution](phases/phase-7/plan.md) — branch `claude`
 
 ## Source Documents
 
