@@ -101,7 +101,7 @@ task_name: "Gate review and merge to main"
 max_iterations: 2
 on_max_iterations: "escalate"
 handoff_summary:
-  done: ""
+  done: "Gate PASS at confidence 95 on all criteria; verdict written; merged to main with tests passing."
   failed: ""
   needed: ""
 todos:
@@ -110,14 +110,14 @@ todos:
     skill: "superpowers:verification-before-completion"
     agent: "reviewer"
     outcome: "Gate verdict written with per-criterion evidence; PASS required to merge."
-    status: "pending"
+    status: "completed"
     priority: "high"
   - id: "loop-004-todo-002"
     content: "Merge universal to main and run npm test on main."
     skill: "NA"
     agent: "NA"
     outcome: "main contains the universal plugin; npm test passes on main."
-    status: "pending"
+    status: "completed"
     priority: "high"
 prompt: |
   Execute Phase 8 loop 004 after loop 003. Main-thread merge; verify with git merge-tree first if in doubt.
