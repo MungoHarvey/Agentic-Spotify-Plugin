@@ -13,9 +13,10 @@ It is one plugin with two supported agent surfaces today — **Claude Code / Cla
 - Optional local setup UI for auth and playback diagnostics
 
 The repository is structured so the core Spotify logic stays compact, auditable, and easy to wrap
-from different agent surfaces. A universal packaging effort is planned so other autonomous agent
-runtimes such as OpenCode, Hermes, and OpenClaw can wrap the same CLI core without a separate
-implementation.
+from different agent surfaces. The release payload also ships a pointer-style `AGENTS.md` plus
+`agentskills.io`-standard skills, so other autonomous agent runtimes — OpenCode, OpenClaw, Hermes
+Agent, and generic AGENTS.md-reading agents — can wrap the same CLI core without a separate
+implementation. See [Runtime support](#runtime-support) below.
 
 Current documentation:
 
@@ -28,6 +29,22 @@ Current documentation:
 - [Spotify developer research](docs/spotify-developer-research.md): auth model, scopes, endpoint coverage, Web Playback SDK notes, proposed tool inventory, and build sequencing.
 - [Spotify auth setup](docs/spotify-auth-setup.md): local PKCE setup, commands, and safety notes.
 - [Plugin production release](docs/plugin-production-release.md): lean release structure, validation gates, and personal marketplace install flow.
+- [Universal install](docs/universal-install.md): per-runtime install/placement recipes for Claude Code, Claude Cowork, Codex, OpenCode, OpenClaw, Hermes Agent, and generic AGENTS.md agents.
+- [Universal runtime research](docs/plans/2026-07-02-universal-runtime-research.md): sourced research behind the universal packaging decisions.
+
+## Runtime support
+
+| Runtime | Mechanism | Install |
+|---|---|---|
+| Claude Code | `.claude-plugin/plugin.json` + `skills/` | [Install for Claude Code](#install-for-claude-code) |
+| Claude Cowork | Same `.claude-plugin/plugin.json` + `skills/` shape | [docs/universal-install.md](docs/universal-install.md#claude-code--claude-cowork) |
+| Codex | `.codex-plugin/plugin.json` + `AGENTS.md` | [Install for Codex](#install-for-codex) |
+| OpenCode | Native `AGENTS.md` read + `SKILL.md` copy/symlink into `.opencode/skills/` | [docs/universal-install.md](docs/universal-install.md#opencode) |
+| OpenClaw | Native `AGENTS.md` read + `openclaw skills install` (agentskills.io) | [docs/universal-install.md](docs/universal-install.md#openclaw) |
+| Hermes Agent | Native `AGENTS.md` read + `skills.external_dirs` / `hermes skills install` | [docs/universal-install.md](docs/universal-install.md#hermes-agent-nousresearch) |
+| Generic AGENTS.md agents | `AGENTS.md` + CLI (`bin/spotify.ps1` / `bin/spotify.mjs`) | [docs/universal-install.md](docs/universal-install.md#generic-agentsmd-agents) |
+
+See [docs/universal-install.md](docs/universal-install.md) for full per-runtime steps.
 
 ## Install for Claude Code
 

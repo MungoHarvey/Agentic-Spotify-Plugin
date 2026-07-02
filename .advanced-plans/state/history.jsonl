@@ -57,3 +57,4 @@
 {"event":"gate_pass","phase":"phase-7","date":"2026-07-02","verdict":"PASS","confidence":90}
 {"event":"phase_planned","phase":"phase-8","branch":"universal","loops":4,"todos":8,"date":"2026-07-02"}
 {"phase":"phase-8","loop":"ralph-loop-001","status":"completed","done":"Sourced research doc written; all target runtimes converge on agentskills.io SKILL.md; AGENTS.md wrap chosen; token-store rename with fallback recommended.","failed":"","needed":"Loop 002: AGENTS.md, universal-install.md, README matrix, token-store rename with fallback."}
+{"phase":"phase-8","loop":"ralph-loop-002","status":"completed","done":"AGENTS.md, universal-install.md, README runtime matrix; token-store renamed to spotify-plugin with legacy fallback wired into all CLI commands via resolveTokenStorePathSync; MCP server renamed; 151 tests pass.","failed":"","needed":"Loop 003: reinstall Claude plugin and re-verify; then gate and merge."}

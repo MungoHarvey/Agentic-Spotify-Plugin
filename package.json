@@ -1,8 +1,8 @@
 {
-  "name": "spotify-codex-plugin",
+  "name": "spotify-plugin",
   "version": "0.1.0",
   "private": true,
-  "description": "CLI-first Spotify Codex plugin scaffold with a minimal MCP surface.",
+  "description": "CLI-first Spotify plugin for agentic coding tools with a minimal MCP surface.",
   "type": "module",
   "bin": {
     "spotify": "./dist/cli/index.js"

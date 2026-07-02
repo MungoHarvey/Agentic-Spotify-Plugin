@@ -19,7 +19,7 @@ Use the CLI-first PKCE flow for Spotify auth work.
 - `SPOTIFY_CLIENT_ID` is required for login and refresh.
 - `SPOTIFY_REDIRECT_URI` defaults to `http://127.0.0.1:43210/callback`.
 - `SPOTIFY_SCOPES` defaults to `playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-read-playback-state user-read-currently-playing user-modify-playback-state streaming user-read-private`.
-- `SPOTIFY_TOKEN_PATH` overrides the token store location. By default the CLI writes to a per-user file outside the repo, usually under `~/.config/spotify-codex-plugin/tokens.json` and on Windows under `%APPDATA%/spotify-codex-plugin/tokens.json` when that path is not inside the repo.
+- `SPOTIFY_TOKEN_PATH` overrides the token store location. By default the CLI writes to a per-user file outside the repo, usually under `~/.config/spotify-plugin/tokens.json` and on Windows under `%APPDATA%/spotify-plugin/tokens.json` when that path is not inside the repo. Tokens stored by older installs under the legacy `spotify-codex-plugin` directory are still found automatically.
 
 ## Token Store
 

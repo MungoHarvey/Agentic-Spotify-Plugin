@@ -99,6 +99,65 @@ test('deleteTokenStore removes the token file and tolerates missing files', asyn
   });
 });
 
+test('readTokenStore falls back to the legacy path when the primary file is missing', async () => {
+  const { storePath: newStorePath } = createTempStorePath();
+  const { storePath: legacyStorePath } = createTempStorePath();
+  const tokenData = {
+    accessToken: 'legacy-access-token',
+    refreshToken: 'legacy-refresh-token',
+    expiresAt: 1234567890,
+  };
+
+  await writeTokenStore(legacyStorePath, tokenData);
+
+  assert.deepEqual(await readTokenStore(newStorePath, legacyStorePath), tokenData);
+});
+
+test('readTokenStore prefers the primary path over the legacy path when both exist', async () => {
+  const { storePath: newStorePath } = createTempStorePath();
+  const { storePath: legacyStorePath } = createTempStorePath();
+  const newTokenData = {
+    accessToken: 'new-access-token',
+    refreshToken: 'new-refresh-token',
+    expiresAt: 1111111111,
+  };
+  const legacyTokenData = {
+    accessToken: 'legacy-access-token',
+    refreshToken: 'legacy-refresh-token',
+    expiresAt: 2222222222,
+  };
+
+  await writeTokenStore(newStorePath, newTokenData);
+  await writeTokenStore(legacyStorePath, legacyTokenData);
+
+  assert.deepEqual(await readTokenStore(newStorePath, legacyStorePath), newTokenData);
+});
+
+test('readTokenStore returns null when neither the primary nor legacy path has a token file', async () => {
+  const { storePath: newStorePath } = createTempStorePath();
+  const { storePath: legacyStorePath } = createTempStorePath();
+
+  assert.equal(await readTokenStore(newStorePath, legacyStorePath), null);
+});
+
+test('readTokenStore does not modify or delete the legacy file when reading it', async () => {
+  const { storePath: newStorePath } = createTempStorePath();
+  const { storePath: legacyStorePath } = createTempStorePath();
+  const tokenData = {
+    accessToken: 'legacy-access-token',
+    refreshToken: 'legacy-refresh-token',
+    expiresAt: 1234567890,
+  };
+
+  await writeTokenStore(legacyStorePath, tokenData);
+  await readTokenStore(newStorePath, legacyStorePath);
+
+  assert.deepEqual(JSON.parse(readFileSync(legacyStorePath, 'utf8')), tokenData);
+  await assert.rejects(async () => {
+    readFileSync(newStorePath, 'utf8');
+  });
+});
+
 test('createAuthStatus returns an unauthenticated status when no token data exists', () => {
   assert.deepEqual(createAuthStatus(null), {
     authenticated: false,

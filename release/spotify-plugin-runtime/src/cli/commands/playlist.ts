@@ -5,7 +5,7 @@ import { refreshAccessToken } from '../../auth/token-exchange.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import { loadSpotifyConfig } from '../../config/env.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
-import { getTokenStorePathHint } from '../../config/paths.ts';
+import { getTokenStorePathHint, resolveTokenStorePathSync } from '../../config/paths.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import { createSpotifyClient } from '../../spotify/client.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
@@ -93,7 +93,7 @@ type PlaylistReorderSessionOptions = Omit<PlaylistSessionOptions, 'playlistName'
 };
 
 function getTokenStorePath(env: PlaylistCliEnv): string {
-  return env.SPOTIFY_TOKEN_PATH?.trim() || getTokenStorePathHint();
+  return env.SPOTIFY_TOKEN_PATH?.trim() || resolveTokenStorePathSync();
 }
 
 function writePlaylistError(message: string, stderr = process.stderr): number {

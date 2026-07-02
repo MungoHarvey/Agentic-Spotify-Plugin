@@ -17,7 +17,7 @@ export type AuthStatus =
       obtainedAt?: number;
     };
 
-export async function readTokenStore(filePath: string): Promise<StoredTokenData | null> {
+async function readTokenStoreFile(filePath: string): Promise<StoredTokenData | null> {
   try {
     const fileContents = await readFile(filePath, 'utf8');
     return JSON.parse(fileContents) as StoredTokenData;
@@ -33,6 +33,23 @@ export async function readTokenStore(filePath: string): Promise<StoredTokenData 
 
     throw error;
   }
+}
+
+// Reads the token store at `filePath`. If it is missing and a
+// `legacyFilePath` is supplied (e.g. the pre-rename token location), falls
+// back to reading that file instead. The legacy file is never written to or
+// deleted by this function.
+export async function readTokenStore(
+  filePath: string,
+  legacyFilePath?: string
+): Promise<StoredTokenData | null> {
+  const tokenData = await readTokenStoreFile(filePath);
+
+  if (tokenData !== null || !legacyFilePath) {
+    return tokenData;
+  }
+
+  return readTokenStoreFile(legacyFilePath);
 }
 
 export async function writeTokenStore(filePath: string, tokenData: StoredTokenData): Promise<void> {

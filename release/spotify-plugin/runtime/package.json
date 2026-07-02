@@ -2,7 +2,7 @@
   "name": "spotify-plugin-runtime",
   "version": "0.1.0",
   "private": true,
-  "description": "CLI-first Spotify plugin runtime scaffold with a minimal MCP surface.",
+  "description": "CLI-first Spotify plugin runtime with a minimal MCP surface.",
   "type": "module",
   "bin": {
     "spotify": "./dist/cli/index.js"
