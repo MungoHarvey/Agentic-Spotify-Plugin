@@ -1,0 +1,27 @@
+{
+  "name": "spotify-plugin-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CLI-first Spotify plugin runtime scaffold with a minimal MCP surface.",
+  "type": "module",
+  "bin": {
+    "spotify": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "cli": "node dist/cli/index.js",
+    "start": "node dist/cli/index.js"
+  },
+  "keywords": [
+    "spotify",
+    "codex",
+    "cli",
+    "mcp",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

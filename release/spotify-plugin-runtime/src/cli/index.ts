@@ -29,7 +29,7 @@ import { runQueueCommand } from './commands/queue.ts';
 import { runResolveCommand, runSearchCommand } from './commands/search.ts';
 
 const HELP_TEXT = [
-  'spotify - Spotify Codex plugin CLI',
+  'spotify - Spotify plugin CLI',
   '',
   'Usage:',
   '  spotify <group> <command> [options]',

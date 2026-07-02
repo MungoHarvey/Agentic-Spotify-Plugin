@@ -1,6 +1,6 @@
 ---
 name: spotify-queue-list
-description: Build and confirm Spotify queue lists before mutating playback. Use when a user asks to add songs by name, build a listening queue, combine requests into a sequence, or safely add multiple Spotify tracks to the queue.
+description: This skill should be used when the user asks to "add these songs to my queue", "build a listening queue", "queue up tracks by name", "combine these requests into a sequence", or "safely add multiple Spotify tracks to the queue" — builds and confirms a Spotify queue list before mutating playback.
 ---
 
 # Spotify Queue List

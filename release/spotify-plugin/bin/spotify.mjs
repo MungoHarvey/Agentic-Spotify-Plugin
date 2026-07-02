@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const pluginRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const bundledRuntime = path.resolve(pluginRoot, 'runtime');
 const userProfileRuntime = path.join(
   process.env.USERPROFILE || os.homedir(),
   'plugins',
@@ -13,6 +14,7 @@ const userProfileRuntime = path.join(
 );
 const candidateRuntimeRoots = [
   process.env.SPOTIFY_PLUGIN_RUNTIME,
+  bundledRuntime,
   userProfileRuntime,
   path.resolve(pluginRoot, '..', 'spotify-plugin-runtime'),
 ].filter(Boolean);
@@ -25,6 +27,8 @@ if (!runtimeRoot) {
   console.error(
     [
       'Spotify plugin runtime not found.',
+      'Expected the bundled runtime at:',
+      bundledRuntime,
       'Set SPOTIFY_PLUGIN_RUNTIME or install the runtime at:',
       userProfileRuntime,
     ].join('\n'),

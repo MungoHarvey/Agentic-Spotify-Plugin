@@ -1,6 +1,6 @@
 ---
 name: spotify
-description: CLI-first Spotify workflow guidance. Use when connecting a Spotify account, checking auth status, reading or building playlists, inspecting or adding to the queue, searching or resolving tracks, or diagnosing playback — routes detailed workflows to reference files and clarifies when to shell out to the CLI versus using MCP.
+description: This skill should be used when the user asks to "connect Spotify", "check auth status", "list my playlists", "build a playlist", "edit a playlist", "read the queue", "queue up tracks", "search for a track", or "diagnose playback" — routes detailed workflows to reference files and clarifies when to shell out to the CLI versus using MCP.
 ---
 
 # Spotify

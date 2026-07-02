@@ -6,7 +6,7 @@ const repoRoot = new URL('../../', import.meta.url);
 const cliEntry = new URL('../../src/cli/index.ts', import.meta.url).href;
 
 const expectedHelp = [
-  'spotify - Spotify Codex plugin CLI',
+  'spotify - Spotify plugin CLI',
   '',
   'Usage:',
   '  spotify <group> <command> [options]',
