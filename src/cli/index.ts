@@ -25,6 +25,8 @@ import { runPlaylistCommand } from './commands/playlist.ts';
 import { runPlaylistsCommand } from './commands/playlists.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import { runQueueCommand } from './commands/queue.ts';
+// @ts-ignore - Node types are not wired into this scaffold yet.
+import { runResolveCommand, runSearchCommand } from './commands/search.ts';
 
 const HELP_TEXT = [
   'spotify - Spotify Codex plugin CLI',
@@ -39,7 +41,8 @@ const HELP_TEXT = [
   '  playlist Playlist metadata and item workflows',
   '  playlists Playlist reads',
   '  queue    Queue inspection and additions',
-  '  search   Track, album, and artist lookup',
+  '  search   Track lookup and resolution',
+  '  resolve  Ambiguity-aware lookup helpers',
   '',
   'Options:',
   '  --help   Show this help text',
@@ -50,12 +53,12 @@ const HELP_TEXT = [
   '  playlist get, playlist items, playlist create, playlist update,',
   '  playlist add, playlist remove, playlist remove-positions,',
   '  playlist reorder, playlist replace,',
-  '  playlists list,',
-  '  and queue get.',
+  '  playlists list, queue get, queue add, queue add-many,',
+  '  search track, and resolve track.',
   '',
   'Planned:',
-  '  playback control, queue add, queue add-many,',
-  '  search, track, album, and artist commands.',
+  '  playback control, queue reorder/remove,',
+  '  track, album, and artist commands.',
 ].join('\n');
 
 function hasHelpFlag(argv: string[]): boolean {
@@ -106,6 +109,14 @@ export async function main(argv: string[], env = process.env): Promise<number> {
 
   if (argv[0] === 'queue') {
     return runQueueCommand(argv.slice(1), env);
+  }
+
+  if (argv[0] === 'search') {
+    return runSearchCommand(argv.slice(1), env);
+  }
+
+  if (argv[0] === 'resolve') {
+    return runResolveCommand(argv.slice(1), env);
   }
 
   process.stdout.write(`${HELP_TEXT}\n`);

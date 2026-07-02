@@ -26,6 +26,10 @@ release/spotify-plugin/
         queue-workflows.md
         safety.md
         search-and-resolution.md
+    spotify-queue-list/
+      SKILL.md
+      references/
+        queue-list-workflow.md
 release/spotify-plugin-runtime/
   bin/
   src/
@@ -59,6 +63,8 @@ New-Item -ItemType Directory -Force -Path release\spotify-plugin\.codex-plugin,r
 Copy-Item -Path .codex-plugin\plugin.json -Destination release\spotify-plugin\.codex-plugin\plugin.json -Force
 Remove-Item -LiteralPath release\spotify-plugin\skills\spotify -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item -Path skills\spotify -Destination release\spotify-plugin\skills\spotify -Recurse -Force
+Remove-Item -LiteralPath release\spotify-plugin\skills\spotify-queue-list -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item -Path skills\spotify-queue-list -Destination release\spotify-plugin\skills\spotify-queue-list -Recurse -Force
 Remove-Item -LiteralPath release\spotify-plugin\bin -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item -Path bin -Destination release\spotify-plugin\bin -Recurse -Force
 

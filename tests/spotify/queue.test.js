@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { getQueue } from '../../src/spotify/queue.ts';
+import { addManyToQueue, addToQueue, getQueue } from '../../src/spotify/queue.ts';
 
 test('getQueue requests the queue endpoint and shapes compact queue data', async () => {
   const calls = [];
@@ -88,4 +88,81 @@ test('getQueue returns empty queue data for non-object responses', async () => {
     currentlyPlaying: null,
     queue: [],
   });
+});
+
+test('addToQueue posts a track URI with an optional device id', async () => {
+  const calls = [];
+
+  const result = await addToQueue(
+    {
+      async request(path, init) {
+        calls.push({ path, init });
+        return null;
+      },
+    },
+    {
+      uri: 'spotify:track:track-1',
+      deviceId: 'device-1',
+    },
+  );
+
+  assert.deepEqual(calls, [
+    {
+      path: 'me/player/queue?uri=spotify%3Atrack%3Atrack-1&device_id=device-1',
+      init: { method: 'POST' },
+    },
+  ]);
+  assert.deepEqual(result, {
+    uri: 'spotify:track:track-1',
+    deviceId: 'device-1',
+  });
+});
+
+test('addManyToQueue posts queue items sequentially', async () => {
+  const calls = [];
+
+  const result = await addManyToQueue(
+    {
+      async request(path, init) {
+        calls.push({ path, init });
+        return null;
+      },
+    },
+    {
+      uris: ['spotify:track:track-1', 'spotify:episode:episode-1'],
+    },
+  );
+
+  assert.deepEqual(calls, [
+    {
+      path: 'me/player/queue?uri=spotify%3Atrack%3Atrack-1',
+      init: { method: 'POST' },
+    },
+    {
+      path: 'me/player/queue?uri=spotify%3Aepisode%3Aepisode-1',
+      init: { method: 'POST' },
+    },
+  ]);
+  assert.deepEqual(result, {
+    added: [
+      { uri: 'spotify:track:track-1' },
+      { uri: 'spotify:episode:episode-1' },
+    ],
+    count: 2,
+  });
+});
+
+test('addToQueue validates queue item URIs', async () => {
+  await assert.rejects(
+    () =>
+      addToQueue(
+        {
+          async request() {
+            throw new Error('should not request');
+          },
+        },
+        { uri: 'spotify:album:album-1' },
+      ),
+    /Queue item URI must be a Spotify track or episode URI\./,
+  );
 });

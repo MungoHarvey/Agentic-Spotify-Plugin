@@ -7,9 +7,9 @@ description: CLI-first Spotify plugin workflow guidance for Codex. Use when work
 
 Use the repo CLI first. Use MCP only for narrow, stable reads when wrappers exist and clearly help.
 
-Auth, shared client foundation, read-only diagnostics, playlist reads, and core playlist writes are implemented.
+Auth, shared client foundation, read-only diagnostics, playlist reads, core playlist writes, queue reads/additions, and track search/resolve are implemented.
 
-- Do not claim playback control, queue-add, or search commands that are not implemented.
+- Do not claim playback control, native queue reorder, native queue removal, or album/artist/track detail commands that are not implemented.
 - Do not expand this skill with endpoint-by-endpoint detail.
 - Route detailed workflows to the reference files in `references/`.
 

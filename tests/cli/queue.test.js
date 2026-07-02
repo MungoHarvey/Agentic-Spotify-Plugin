@@ -216,3 +216,141 @@ test('spotify queue get --json refreshes expired token data before reading the q
   assert.equal(result.stdout.includes('old-refresh'), false);
   assert.equal(result.stdout.includes('fresh-access'), false);
 });
+
+test('spotify queue add --json posts a queue item with an optional device id', () => {
+  const { tokenPath } = createTempTokenPath();
+  writeFileSync(
+    tokenPath,
+    `${JSON.stringify(
+      {
+        accessToken: 'valid-access',
+        refreshToken: 'valid-refresh',
+        expiresAt: 1700007200000,
+        tokenType: 'Bearer',
+        scope: ['user-modify-playback-state'],
+        obtainedAt: 1699996400000,
+      },
+      null,
+      2,
+    )}\n`,
+    'utf8',
+  );
+
+  const result = runCli(
+    ['queue', 'add', 'spotify:track:track-1', '--device-id', 'device-1', '--json'],
+    `async (url, init) => {
+      if (url === 'https://api.spotify.com/v1/me/player/queue?uri=spotify%3Atrack%3Atrack-1&device_id=device-1') {
+        if (!init || init.method !== 'POST' || !init.headers || init.headers.Authorization !== 'Bearer valid-access') {
+          throw new Error('Unexpected queue add request');
+        }
+
+        return {
+          status: 204,
+          ok: true,
+          async json() {
+            throw new Error('should not read json');
+          },
+          async text() {
+            return '';
+          },
+        };
+      }
+
+      throw new Error(\`Unexpected fetch URL: \${url}\`);
+    }`,
+    {
+      SPOTIFY_TOKEN_PATH: tokenPath,
+    },
+    1700000000000,
+  );
+
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, '');
+  assert.deepEqual(JSON.parse(result.stdout), {
+    added: [
+      {
+        uri: 'spotify:track:track-1',
+        deviceId: 'device-1',
+      },
+    ],
+    count: 1,
+  });
+  assert.equal(result.stdout.includes('valid-access'), false);
+  assert.equal(result.stdout.includes('valid-refresh'), false);
+});
+
+test('spotify queue add-many --json posts queue items sequentially', () => {
+  const { tokenPath } = createTempTokenPath();
+  const calls = [];
+  writeFileSync(
+    tokenPath,
+    `${JSON.stringify(
+      {
+        accessToken: 'valid-access',
+        refreshToken: 'valid-refresh',
+        expiresAt: 1700007200000,
+        tokenType: 'Bearer',
+        scope: ['user-modify-playback-state'],
+        obtainedAt: 1699996400000,
+      },
+      null,
+      2,
+    )}\n`,
+    'utf8',
+  );
+
+  const result = runCli(
+    ['queue', 'add-many', 'spotify:track:track-1', 'spotify:episode:episode-1', '--json'],
+    `async (url, init) => {
+      if (!init || init.method !== 'POST' || !init.headers || init.headers.Authorization !== 'Bearer valid-access') {
+        throw new Error('Unexpected queue add-many request');
+      }
+
+      globalThis.__queueCalls = globalThis.__queueCalls || [];
+      globalThis.__queueCalls.push(url);
+
+      if (
+        url === 'https://api.spotify.com/v1/me/player/queue?uri=spotify%3Atrack%3Atrack-1' ||
+        url === 'https://api.spotify.com/v1/me/player/queue?uri=spotify%3Aepisode%3Aepisode-1'
+      ) {
+        return {
+          status: 204,
+          ok: true,
+          async json() {
+            throw new Error('should not read json');
+          },
+          async text() {
+            return '';
+          },
+        };
+      }
+
+      throw new Error(\`Unexpected fetch URL: \${url}\`);
+    }`,
+    {
+      SPOTIFY_TOKEN_PATH: tokenPath,
+    },
+    1700000000000,
+  );
+
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, '');
+  assert.deepEqual(JSON.parse(result.stdout), {
+    added: [
+      { uri: 'spotify:track:track-1' },
+      { uri: 'spotify:episode:episode-1' },
+    ],
+    count: 2,
+  });
+  assert.deepEqual(calls, []);
+});
+
+test('spotify queue add requires a queue item URI', () => {
+  const result = runCli(['queue', 'add', '--json'], `async () => {
+    throw new Error('should not fetch');
+  }`);
+
+  assert.notEqual(result.status, 0);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /Queue add requires a Spotify track or episode URI\./);
+});

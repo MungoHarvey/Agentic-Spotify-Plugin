@@ -2,6 +2,13 @@
 
 Use search to produce candidates, not forced answers.
 
+## Implemented commands
+
+- `spotify search track <query> --limit <n> --json`
+- `spotify resolve track <query> --limit <n> --json`
+
+Default limit is 10. Limits are clamped to the supported range before calling Spotify.
+
 ## Candidate shape
 
 Include the most useful identifiers and descriptors:

@@ -66,6 +66,14 @@ the installed plugin wrapper unless explicitly working inside the development re
 - `spotify playlist replace <playlist_id> <uri...> --json`
 - `spotify queue get`
 - `spotify queue get --json`
+- `spotify queue add <spotify_track_or_episode_uri>`
+- `spotify queue add <spotify_track_or_episode_uri> --device-id <device_id> --json`
+- `spotify queue add-many <spotify_track_or_episode_uri...>`
+- `spotify queue add-many <spotify_track_or_episode_uri...> --json`
+- `spotify search track <query>`
+- `spotify search track <query> --limit <n> --json`
+- `spotify resolve track <query>`
+- `spotify resolve track <query> --limit <n> --json`
 
 Treat the list above as the implemented Spotify command surface. The commands below are planned routing, not live behavior.
 
@@ -76,9 +84,6 @@ Treat the list above as the implemented Spotify command surface. The commands be
 - `spotify player pause`
 - `spotify player next`
 - `spotify player previous`
-- `spotify queue add ...`
-- `spotify queue add-many ...`
-- `spotify search ...`
 - `spotify track ...`
 - `spotify album ...`
 - `spotify artist ...`
@@ -90,6 +95,10 @@ Treat the list above as the implemented Spotify command surface. The commands be
 - Use `spotify player state --json` for full current playback state; a no-content response returns `{"active":false}`.
 - Use `spotify player current --json` for the currently playing item; a no-content response returns `{"current":false}`.
 - Use `spotify queue get --json` for read-only queue diagnostics.
+- Use `spotify queue add <uri> --json` to add one track or episode URI to the active device queue.
+- Use `spotify queue add-many <uri...> --json` to add multiple track or episode URIs sequentially.
+- Use `spotify search track <query> --limit <n> --json` to retrieve compact track candidates.
+- Use `spotify resolve track <query> --limit <n> --json` when a workflow needs ambiguity metadata before a write.
 - Use `spotify playlists list --json` for one current-user playlist page.
 - Use `spotify playlists list --all --json` when a complete playlist list is needed.
 - Use `spotify playlist get <playlist_id> --json` for playlist metadata.
@@ -101,6 +110,8 @@ Treat the list above as the implemented Spotify command surface. The commands be
 - Use `spotify playlist remove-positions <playlist_id> <position...> --snapshot-id <snapshot_id> --json` for duplicate-sensitive removals.
 - Use `spotify playlist reorder <playlist_id> --range-start <n> --insert-before <n> --json` for item reordering.
 - Use `spotify playlist replace <playlist_id> <uri...> --json` to replace playlist contents with explicit URIs.
+- Queue additions require Spotify Premium, an active playback device, and `user-modify-playback-state`.
+- Search/resolve commands require an authenticated token but do not need Premium.
 
 ## Output rules
 

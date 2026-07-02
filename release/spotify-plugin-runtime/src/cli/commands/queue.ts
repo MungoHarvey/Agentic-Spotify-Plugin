@@ -9,7 +9,7 @@ import { getTokenStorePathHint } from '../../config/paths.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import { createSpotifyClient } from '../../spotify/client.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
-import { getQueue } from '../../spotify/queue.ts';
+import { addManyToQueue, getQueue } from '../../spotify/queue.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import type { StoredTokenData } from '../../auth/tokens.ts';
 
@@ -32,6 +32,9 @@ type QueueCliEnv = Record<string, string | undefined>;
 
 type QueueSessionOptions = {
   json: boolean;
+  action?: 'get' | 'add-many';
+  uris?: string[];
+  deviceId?: string;
   env: QueueCliEnv;
   tokenStorePath?: string;
   readTokenStore?: (filePath: string) => Promise<StoredTokenData | null>;
@@ -78,8 +81,11 @@ function mergeRefreshedTokenData(
   };
 }
 
-async function runQueueGetSessionInternal({
+async function runQueueSessionInternal({
   json,
+  action = 'get',
+  uris = [],
+  deviceId,
   env,
   tokenStorePath,
   readTokenStore: readStore = readTokenStore,
@@ -127,26 +133,58 @@ async function runQueueGetSessionInternal({
       },
     });
 
-    const payload = await getQueue(client);
+    const payload =
+      action === 'add-many'
+        ? await addManyToQueue(client, { uris, deviceId })
+        : await getQueue(client);
 
     if (json) {
       stdout.write(`${JSON.stringify(payload)}\n`);
     } else {
-      stdout.write(`Spotify queue\n`);
+      stdout.write(action === 'add-many' ? `Spotify queue updated\n` : `Spotify queue\n`);
     }
 
     return 0;
   } catch (error) {
-    return writeQueueError(error instanceof Error ? error.message : 'Spotify queue get failed.', stderr);
+    return writeQueueError(error instanceof Error ? error.message : 'Spotify queue command failed.', stderr);
   }
 }
 
 export async function runQueueGetSession(options: QueueSessionOptions): Promise<number> {
-  return runQueueGetSessionInternal(options);
+  return runQueueSessionInternal({ ...options, action: 'get' });
 }
 
 function detectJsonFlag(argv: string[]): boolean {
   return argv.includes('--json');
+}
+
+function readOptionValue(argv: string[], optionName: string): string | undefined {
+  const optionIndex = argv.indexOf(optionName);
+
+  if (optionIndex === -1) {
+    return undefined;
+  }
+
+  const value = argv[optionIndex + 1]?.trim();
+
+  return value && !value.startsWith('--') ? value : undefined;
+}
+
+function readPositionalValues(argv: string[]): string[] {
+  const values = [];
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const value = argv[index];
+
+    if (value.startsWith('--')) {
+      index += 1;
+      continue;
+    }
+
+    values.push(value);
+  }
+
+  return values;
 }
 
 export async function runQueueCommand(argv: string[], env = process.env): Promise<number> {
@@ -155,6 +193,26 @@ export async function runQueueCommand(argv: string[], env = process.env): Promis
   if (command === 'get') {
     return runQueueGetSession({
       json: detectJsonFlag(rest),
+      env,
+    });
+  }
+
+  if (command === 'add' || command === 'add-many') {
+    const uris = readPositionalValues(rest);
+
+    if (uris.length === 0) {
+      return writeQueueError(
+        command === 'add'
+          ? 'Queue add requires a Spotify track or episode URI.'
+          : 'Queue add-many requires at least one Spotify track or episode URI.',
+      );
+    }
+
+    return runQueueSessionInternal({
+      json: detectJsonFlag(rest),
+      action: 'add-many',
+      uris: command === 'add' ? [uris[0]] : uris,
+      deviceId: readOptionValue(rest, '--device-id'),
       env,
     });
   }

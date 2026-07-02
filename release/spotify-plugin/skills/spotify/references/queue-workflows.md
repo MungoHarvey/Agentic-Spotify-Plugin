@@ -5,9 +5,9 @@ Use queue commands as a limited, Premium-gated surface.
 ## Supported direction
 
 - Read the current queue with `spotify queue get --json`.
-- Add one track or episode.
-- Add many items sequentially when needed.
-- Treat queue add/add-many as planned until implementation lands.
+- Add one track or episode with `spotify queue add <uri> --json`.
+- Add many items sequentially with `spotify queue add-many <uri...> --json`.
+- Use a `spotify:track:<id>` or `spotify:episode:<id>` URI. Do not pass names directly to queue add.
 
 ## Required conditions
 
@@ -27,4 +27,5 @@ If a user asks for those operations, explain the limitation and suggest a playli
 ## Status
 
 - `spotify queue get` is implemented as read-only diagnostics.
-- Queue add and add-many are still planned.
+- `spotify queue add` and `spotify queue add-many` are implemented for explicit track/episode URIs.
+- Native queue reorder and remove remain unsupported by Spotify's public Web API.

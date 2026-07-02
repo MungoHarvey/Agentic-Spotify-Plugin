@@ -9,7 +9,7 @@ import { getTokenStorePathHint } from '../../config/paths.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import { createSpotifyClient } from '../../spotify/client.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
-import { addManyToQueue, getQueue } from '../../spotify/queue.ts';
+import { resolveTrack, searchTracks } from '../../spotify/search.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import type { StoredTokenData } from '../../auth/tokens.ts';
 
@@ -28,14 +28,14 @@ declare const process: {
   };
 };
 
-type QueueCliEnv = Record<string, string | undefined>;
+type SearchCliEnv = Record<string, string | undefined>;
 
-type QueueSessionOptions = {
+type SearchSessionOptions = {
   json: boolean;
-  action?: 'get' | 'add-many';
-  uris?: string[];
-  deviceId?: string;
-  env: QueueCliEnv;
+  action: 'search-track' | 'resolve-track';
+  query: string;
+  limit?: number;
+  env: SearchCliEnv;
   tokenStorePath?: string;
   readTokenStore?: (filePath: string) => Promise<StoredTokenData | null>;
   writeTokenStore?: (filePath: string, tokenData: StoredTokenData) => Promise<void>;
@@ -45,8 +45,8 @@ type QueueSessionOptions = {
     fetchImpl: typeof fetch;
   }) => Promise<StoredTokenData>;
   createSpotifyClient?: typeof createSpotifyClient;
-  loadSpotifyConfig?: (env: QueueCliEnv) => ReturnType<typeof loadSpotifyConfig>;
-  getTokenStorePath?: (env: QueueCliEnv) => string;
+  loadSpotifyConfig?: (env: SearchCliEnv) => ReturnType<typeof loadSpotifyConfig>;
+  getTokenStorePath?: (env: SearchCliEnv) => string;
   fetchImpl?: typeof fetch;
   stdout?: {
     write(value: string): void;
@@ -56,11 +56,11 @@ type QueueSessionOptions = {
   };
 };
 
-function getTokenStorePath(env: QueueCliEnv): string {
+function getTokenStorePath(env: SearchCliEnv): string {
   return env.SPOTIFY_TOKEN_PATH?.trim() || getTokenStorePathHint();
 }
 
-function writeQueueError(message: string, stderr = process.stderr): number {
+function writeSearchError(message: string, stderr = process.stderr): number {
   stderr.write(`${message}\n`);
   return 1;
 }
@@ -81,11 +81,11 @@ function mergeRefreshedTokenData(
   };
 }
 
-async function runQueueSessionInternal({
+async function runSearchSessionInternal({
   json,
-  action = 'get',
-  uris = [],
-  deviceId,
+  action,
+  query,
+  limit,
   env,
   tokenStorePath,
   readTokenStore: readStore = readTokenStore,
@@ -97,7 +97,7 @@ async function runQueueSessionInternal({
   fetchImpl = fetch,
   stdout = process.stdout,
   stderr = process.stderr,
-}: QueueSessionOptions): Promise<number> {
+}: SearchSessionOptions): Promise<number> {
   try {
     const tokenPath = tokenStorePath?.trim() || getStorePath(env);
     let tokenData = await readStore(tokenPath);
@@ -134,24 +134,20 @@ async function runQueueSessionInternal({
     });
 
     const payload =
-      action === 'add-many'
-        ? await addManyToQueue(client, { uris, deviceId })
-        : await getQueue(client);
+      action === 'resolve-track'
+        ? await resolveTrack(client, { query, limit })
+        : await searchTracks(client, { query, limit });
 
     if (json) {
       stdout.write(`${JSON.stringify(payload)}\n`);
     } else {
-      stdout.write(action === 'add-many' ? `Spotify queue updated\n` : `Spotify queue\n`);
+      stdout.write(action === 'resolve-track' ? `Spotify track resolution\n` : `Spotify track search\n`);
     }
 
     return 0;
   } catch (error) {
-    return writeQueueError(error instanceof Error ? error.message : 'Spotify queue command failed.', stderr);
+    return writeSearchError(error instanceof Error ? error.message : 'Spotify search command failed.', stderr);
   }
-}
-
-export async function runQueueGetSession(options: QueueSessionOptions): Promise<number> {
-  return runQueueSessionInternal({ ...options, action: 'get' });
 }
 
 function detectJsonFlag(argv: string[]): boolean {
@@ -187,36 +183,54 @@ function readPositionalValues(argv: string[]): string[] {
   return values;
 }
 
-export async function runQueueCommand(argv: string[], env = process.env): Promise<number> {
-  const [command, ...rest] = argv;
+function readLimit(argv: string[]): number | undefined {
+  const value = readOptionValue(argv, '--limit');
 
-  if (command === 'get') {
-    return runQueueGetSession({
-      json: detectJsonFlag(rest),
-      env,
-    });
+  return value === undefined ? undefined : Number(value);
+}
+
+export async function runSearchCommand(argv: string[], env = process.env): Promise<number> {
+  const [entity, ...rest] = argv;
+
+  if (entity !== 'track') {
+    process.stdout.write('Unknown search command.\n');
+    return 1;
   }
 
-  if (command === 'add' || command === 'add-many') {
-    const uris = readPositionalValues(rest);
+  const query = readPositionalValues(rest).join(' ').trim();
 
-    if (uris.length === 0) {
-      return writeQueueError(
-        command === 'add'
-          ? 'Queue add requires a Spotify track or episode URI.'
-          : 'Queue add-many requires at least one Spotify track or episode URI.',
-      );
-    }
-
-    return runQueueSessionInternal({
-      json: detectJsonFlag(rest),
-      action: 'add-many',
-      uris: command === 'add' ? [uris[0]] : uris,
-      deviceId: readOptionValue(rest, '--device-id'),
-      env,
-    });
+  if (!query) {
+    return writeSearchError('Search query is required.');
   }
 
-  process.stdout.write('Unknown queue command.\n');
-  return 1;
+  return runSearchSessionInternal({
+    json: detectJsonFlag(rest),
+    action: 'search-track',
+    query,
+    limit: readLimit(rest),
+    env,
+  });
+}
+
+export async function runResolveCommand(argv: string[], env = process.env): Promise<number> {
+  const [entity, ...rest] = argv;
+
+  if (entity !== 'track') {
+    process.stdout.write('Unknown resolve command.\n');
+    return 1;
+  }
+
+  const query = readPositionalValues(rest).join(' ').trim();
+
+  if (!query) {
+    return writeSearchError('Search query is required.');
+  }
+
+  return runSearchSessionInternal({
+    json: detectJsonFlag(rest),
+    action: 'resolve-track',
+    query,
+    limit: readLimit(rest),
+    env,
+  });
 }

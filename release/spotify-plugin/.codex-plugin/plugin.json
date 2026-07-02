@@ -1,6 +1,6 @@
 {
   "name": "spotify-plugin",
-  "version": "0.1.0+codex.20260702110808",
+  "version": "0.1.0+codex.20260702113801",
   "description": "CLI-first Spotify plugin for Codex with a minimal MCP surface.",
   "author": {
     "name": "MungoHarvey",
