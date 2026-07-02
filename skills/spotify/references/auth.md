@@ -44,4 +44,4 @@ Use the CLI-first PKCE flow for Spotify auth work.
 - Token endpoint failures surface the HTTP status code from Spotify.
 - `auth status --json` is the fastest way to confirm whether the store exists and what metadata was recovered without exposing secrets.
 
-Do not paste token values into Codex chat.
+Do not paste token values into agent chat or conversation history.

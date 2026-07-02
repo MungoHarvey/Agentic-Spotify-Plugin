@@ -115,7 +115,7 @@ Treat the list above as the implemented Spotify command surface. The commands be
 
 ## Output rules
 
-- Prefer `--json` when a command supports it and Codex needs machine-readable output.
+- Prefer `--json` when a command supports it and the agent needs machine-readable output.
 - Keep machine output compact and stable.
 - Do not parse text output when JSON is available.
 - Return IDs, URIs, counts, warnings, and `snapshotId` values for writes when available.
