@@ -12,6 +12,7 @@ Date: 2026-06-29
 - [Phase 5: Playlist Reads](phases/phase-5/plan.md)
 - [Phase 6: Playlist Writes](phases/phase-6/plan.md)
 - [Phase 7: Claude Code Plugin Conversion and Marketplace Distribution](phases/phase-7/plan.md) — branch `claude`
+- [Phase 8: Universal Agentic Plugin Packaging](phases/phase-8/plan.md) — branch `universal`
 
 ## Source Documents
 
@@ -19,3 +20,4 @@ Date: 2026-06-29
 - [High-level plugin plan](../docs/plans/2026-06-29-full-plugin-high-level-plan.md)
 - [Project context](../PROJECT_CONTEXT.md)
 - [Spotify developer research](../docs/spotify-developer-research.md)
+
