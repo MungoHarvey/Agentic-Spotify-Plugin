@@ -37,7 +37,7 @@ task_name: "Universal packaging artifacts"
 max_iterations: 2
 on_max_iterations: "escalate"
 handoff_summary:
-  done: ""
+  done: "AGENTS.md (69 lines), docs/universal-install.md (7 runtimes), README runtime matrix; token store renamed with legacy fallback wired into all commands; 151 tests pass."
   failed: ""
   needed: ""
 todos:
@@ -46,28 +46,28 @@ todos:
     skill: "plugin-dev:plugin-structure"
     agent: "worker"
     outcome: "release/spotify-plugin/AGENTS.md exists, compact, agent-agnostic, and consistent with skills content."
-    status: "pending"
+    status: "completed"
     priority: "high"
   - id: "loop-002-todo-002"
     content: "Write docs/universal-install.md with per-runtime sections per the research decisions."
     skill: "NA"
     agent: "worker"
     outcome: "docs/universal-install.md has a concrete section for each target runtime."
-    status: "pending"
+    status: "completed"
     priority: "high"
   - id: "loop-002-todo-003"
     content: "Update README.md with universal positioning and a runtime support matrix; add confirmed adapter artifacts only."
     skill: "NA"
     agent: "worker"
     outcome: "README support matrix covers Claude Code/Cowork, Codex, OpenCode, Hermes, OpenClaw, generic AGENTS.md agents."
-    status: "pending"
+    status: "completed"
     priority: "high"
   - id: "loop-002-todo-004"
     content: "Rename token-store/app-name constant from spotify-codex-plugin to spotify-plugin with backward-compatible fallback read of the legacy directory, in src plus both runtime mirrors, with tests."
     skill: "superpowers:test-driven-development"
     agent: "worker"
     outcome: "New installs use ~/.config/spotify-plugin (or %APPDATA% equivalent); existing tokens in the legacy spotify-codex-plugin directory are still found; tests cover both paths; npm test and npm run check pass."
-    status: "pending"
+    status: "completed"
     priority: "high"
 prompt: |
   Execute Phase 8 loop 002 after loop 001, driven by the research doc decisions.
@@ -80,7 +80,7 @@ task_name: "Validation and regression"
 max_iterations: 3
 on_max_iterations: "checkpoint"
 handoff_summary:
-  done: ""
+  done: "Reinstalled from marketplace: AGENTS.md and updated runtime present in cache; auth status --json returned authenticated:true via the legacy token fallback in production; all JSON parses, mirror clean, 151 tests."
   failed: ""
   needed: ""
 todos:
@@ -89,7 +89,7 @@ todos:
     skill: "superpowers:verification-before-completion"
     agent: "reviewer"
     outcome: "All checks pass; Claude Code install re-verified from cache after payload change."
-    status: "pending"
+    status: "completed"
     priority: "high"
 prompt: |
   Execute Phase 8 loop 003 after loop 002. Evidence over assumptions.
