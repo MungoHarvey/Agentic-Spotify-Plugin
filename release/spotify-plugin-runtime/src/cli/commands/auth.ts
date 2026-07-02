@@ -17,7 +17,7 @@ import type { StoredTokenData } from '../../auth/tokens.ts';
 // @ts-ignore - Importing local TS modules directly is how this scaffold runs under NodeNext.
 import { loadSpotifyConfig } from '../../config/env.ts';
 // @ts-ignore - Importing local TS modules directly is how this scaffold runs under NodeNext.
-import { getTokenStorePathHint } from '../../config/paths.ts';
+import { getTokenStorePathHint, resolveTokenStorePathSync } from '../../config/paths.ts';
 
 declare const process: {
   argv: string[];
@@ -130,7 +130,7 @@ declare const fetch: {
 };
 
 function getTokenStorePath(env: AuthLoginEnv): string {
-  return env.SPOTIFY_TOKEN_PATH?.trim() || getTokenStorePathHint();
+  return env.SPOTIFY_TOKEN_PATH?.trim() || resolveTokenStorePathSync();
 }
 
 type AuthLoginEnv = AuthLoginSessionEnv;

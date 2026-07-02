@@ -6,7 +6,7 @@ export interface McpServerStub {
 }
 
 export const MCP_SERVER: McpServerStub = {
-  name: 'spotify-codex-plugin-mcp',
+  name: 'spotify-plugin-mcp',
   tools: ['spotify_auth_status', 'spotify_me', 'spotify_player_devices', 'spotify_queue_get'],
 };
 

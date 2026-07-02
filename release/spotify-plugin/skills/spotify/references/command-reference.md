@@ -4,17 +4,23 @@ Use this file as the routing map for the CLI-first surface.
 
 ## Local Invocation
 
+**Locating the CLI**: in Claude Code, the plugin root is available as `${CLAUDE_PLUGIN_ROOT}` —
+call `"${CLAUDE_PLUGIN_ROOT}\bin\spotify.ps1"`. In Codex or manual installs, the conventional
+root is `%USERPROFILE%\plugins\spotify-plugin`. Examples below use `<plugin-root>\bin\spotify.ps1`
+as a placeholder for whichever form applies.
+
 On Windows, do not call bare `spotify` from PowerShell. That name can resolve to the Spotify
 desktop app instead of this plugin's CLI.
 
-When the personal plugin is installed, invoke the plugin CLI from any working directory as:
+When the plugin is installed, invoke the plugin CLI from any working directory as:
 
 ```powershell
-& "$env:USERPROFILE\plugins\spotify-plugin\bin\spotify.ps1" <group> <command> [options]
+& "<plugin-root>\bin\spotify.ps1" <group> <command> [options]
 ```
 
-The wrapper expects the runtime at `$env:USERPROFILE\plugins\spotify-plugin-runtime`. If it is
-installed elsewhere, set `SPOTIFY_PLUGIN_RUNTIME` to that runtime root.
+The wrapper resolves its runtime automatically: it ships with a bundled `runtime/` directory
+next to `bin/`, so no separate runtime install is required. To point at a different runtime,
+set `SPOTIFY_PLUGIN_RUNTIME` to that runtime root.
 
 When working from the development repository root, this fallback is also valid:
 
@@ -115,7 +121,7 @@ Treat the list above as the implemented Spotify command surface. The commands be
 
 ## Output rules
 
-- Prefer `--json` when a command supports it and Codex needs machine-readable output.
+- Prefer `--json` when a command supports it and the agent needs machine-readable output.
 - Keep machine output compact and stable.
 - Do not parse text output when JSON is available.
 - Return IDs, URIs, counts, warnings, and `snapshotId` values for writes when available.

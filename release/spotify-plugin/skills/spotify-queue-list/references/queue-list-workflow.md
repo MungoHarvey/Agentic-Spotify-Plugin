@@ -2,6 +2,11 @@
 
 Use this reference to turn natural language into a safe Spotify queue mutation.
 
+**Locating the CLI**: in Claude Code, the plugin root is available as `${CLAUDE_PLUGIN_ROOT}` —
+call `"${CLAUDE_PLUGIN_ROOT}\bin\spotify.ps1"`. In Codex or manual installs, the conventional
+root is `%USERPROFILE%\plugins\spotify-plugin`. Examples below use `<plugin-root>\bin\spotify.ps1`
+as a placeholder for whichever form applies.
+
 ## Intake
 
 - If the user gives no count, plan 10 tracks.
@@ -21,7 +26,7 @@ spotify resolve track "<query>" --limit 5 --json
 When running on Windows outside the repo, invoke the installed wrapper:
 
 ```powershell
-& "$env:USERPROFILE\plugins\spotify-plugin\bin\spotify.ps1" search track "<query>" --limit 5 --json
+& "<plugin-root>\bin\spotify.ps1" search track "<query>" --limit 5 --json
 ```
 
 Use these candidate fields for review:

@@ -156,7 +156,7 @@ SPOTIFY_REDIRECT_URI=http://127.0.0.1:43210/callback
 Recommended local token path on Windows:
 
 ```text
-%APPDATA%\spotify-codex-plugin\tokens.json
+%APPDATA%\spotify-plugin\tokens.json
 ```
 
 The token store should be replaceable later with Windows Credential Manager or a cross-platform keychain. The first implementation can use a per-user local file outside the repository if file permissions are checked and documentation is explicit.

@@ -1,11 +1,11 @@
 ---
 name: spotify
-description: CLI-first Spotify plugin workflow guidance for Codex. Use when working in this repo on Spotify CLI auth, client foundation, workflow routing, playlist and queue design, search ambiguity handling, safety policy, or when deciding whether to use minimal MCP wrappers versus shelling out to the CLI.
+description: This skill should be used when the user asks to "connect Spotify", "check auth status", "list my playlists", "build a playlist", "edit a playlist", "read the queue", "queue up tracks", "search for a track", or "diagnose playback" — routes detailed workflows to reference files and clarifies when to shell out to the CLI versus using MCP.
 ---
 
 # Spotify
 
-Use the repo CLI first. Use MCP only for narrow, stable reads when wrappers exist and clearly help.
+Use this plugin's CLI first. Use MCP only for narrow, stable reads when wrappers exist and clearly help.
 
 Auth, shared client foundation, read-only diagnostics, playlist reads, core playlist writes, queue reads/additions, and track search/resolve are implemented.
 

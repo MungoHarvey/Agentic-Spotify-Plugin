@@ -1,20 +1,26 @@
-# Spotify Codex Plugin
+# Agentic Spotify Plugin
 
 This repository is the working base for an agentic Spotify integration.
 
-The near-term goal is a reliable Codex plugin with CLI-first tooling for:
+It is one plugin with two supported agent surfaces today — **Claude Code / Claude Cowork** and
+**Codex** — both wrapping the same CLI-first core:
 
 - Spotify account connection and auth lifecycle
 - Playlist reads and playlist writes
 - Queue inspection and queue add workflows
+- Track search and resolution
 - Playback diagnostics and control where Spotify permits it
 - Optional local setup UI for auth and playback diagnostics
 
-The longer-term goal is to keep the implementation useful for Claude Code and other autonomous agent runtimes such as OpenClaw and Hermes. The repository is structured so the core Spotify logic stays compact, auditable, and easy to wrap from different agent surfaces.
+The repository is structured so the core Spotify logic stays compact, auditable, and easy to wrap
+from different agent surfaces. The release payload also ships a pointer-style `AGENTS.md` plus
+`agentskills.io`-standard skills, so other autonomous agent runtimes — OpenCode, OpenClaw, Hermes
+Agent, and generic AGENTS.md-reading agents — can wrap the same CLI core without a separate
+implementation. See [Runtime support](#runtime-support) below.
 
 Current documentation:
 
-- [Project context handoff](PROJECT_CONTEXT.md): concise briefing for a fresh Codex session.
+- [Project context handoff](PROJECT_CONTEXT.md): concise briefing for a fresh agent session.
 - [Architecture](ARCHITECTURE.md): CLI-first architecture for the full Spotify plugin.
 - [Development roadmap](ROADMAP.md): staged implementation plan from scaffold through release readiness.
 - [High-level plugin plan](docs/plans/2026-06-29-full-plugin-high-level-plan.md): phase and loop structure for the full build.
@@ -23,8 +29,90 @@ Current documentation:
 - [Spotify developer research](docs/spotify-developer-research.md): auth model, scopes, endpoint coverage, Web Playback SDK notes, proposed tool inventory, and build sequencing.
 - [Spotify auth setup](docs/spotify-auth-setup.md): local PKCE setup, commands, and safety notes.
 - [Plugin production release](docs/plugin-production-release.md): lean release structure, validation gates, and personal marketplace install flow.
+- [Universal install](docs/universal-install.md): per-runtime install/placement recipes for Claude Code, Claude Cowork, Codex, OpenCode, OpenClaw, Hermes Agent, and generic AGENTS.md agents.
+- [Universal runtime research](docs/plans/2026-07-02-universal-runtime-research.md): sourced research behind the universal packaging decisions.
 
-## Agent-Centered Install
+## Runtime support
+
+| Runtime | Mechanism | Install |
+|---|---|---|
+| Claude Code | `.claude-plugin/plugin.json` + `skills/` | [Install for Claude Code](#install-for-claude-code) |
+| Claude Cowork | Same `.claude-plugin/plugin.json` + `skills/` shape | [docs/universal-install.md](docs/universal-install.md#claude-code--claude-cowork) |
+| Codex | `.codex-plugin/plugin.json` + `AGENTS.md` | [Install for Codex](#install-for-codex) |
+| OpenCode | Native `AGENTS.md` read + `SKILL.md` copy/symlink into `.opencode/skills/` | [docs/universal-install.md](docs/universal-install.md#opencode) |
+| OpenClaw | Native `AGENTS.md` read + `openclaw skills install` (agentskills.io) | [docs/universal-install.md](docs/universal-install.md#openclaw) |
+| Hermes Agent | Native `AGENTS.md` read + `skills.external_dirs` / `hermes skills install` | [docs/universal-install.md](docs/universal-install.md#hermes-agent-nousresearch) |
+| Generic AGENTS.md agents | `AGENTS.md` + CLI (`bin/spotify.ps1` / `bin/spotify.mjs`) | [docs/universal-install.md](docs/universal-install.md#generic-agentsmd-agents) |
+
+See [docs/universal-install.md](docs/universal-install.md) for full per-runtime steps.
+
+## Install for Claude Code
+
+The plugin ships with a `.claude-plugin/marketplace.json` at the repository root, so Claude Code
+can add this repo directly as a marketplace.
+
+Add the marketplace, either from GitHub or a local clone:
+
+```powershell
+# From GitHub
+claude plugin marketplace add MungoHarvey/Agentic-Spotify-Plugin
+
+# Or from a local clone path
+claude plugin marketplace add C:\path\to\spotify-plugin
+```
+
+Install the plugin (also available via `/plugin` in-session):
+
+```powershell
+claude plugin install spotify-plugin@agentic-spotify-plugin
+```
+
+This installs the plugin payload (`.claude-plugin/plugin.json`, `bin/` shims, a bundled `runtime/`,
+and `skills/`) at user scope. Skills auto-discover once installed — start a new Claude Code
+session afterward.
+
+No separate runtime install step is required. The CLI runtime now ships inside the plugin payload
+at `runtime/` (source, `package.json`, `tsconfig.json`, zero npm dependencies), and `bin/spotify.mjs`
+finds it there automatically. Just install the plugin and run the shim — there is nothing else to
+copy or configure for the runtime.
+
+The runtime requires Node 22.6+ (the bin shims import TypeScript source directly and rely on
+recent Node type-stripping support). If your Node runtime doesn't support that, run the CLI
+through `tsx` instead.
+
+**Advanced override:** to point the shims at a different runtime (for example a local development
+build instead of the one bundled in the plugin), the shims resolve in this order:
+`SPOTIFY_PLUGIN_RUNTIME` env var → bundled `runtime/` inside the plugin →
+`%USERPROFILE%\plugins\spotify-plugin-runtime` → a sibling `../spotify-plugin-runtime` directory.
+
+```powershell
+# Optional: point the shims at a development runtime instead of the bundled one
+[Environment]::SetEnvironmentVariable("SPOTIFY_PLUGIN_RUNTIME", "C:\path\to\spotify-plugin\release\spotify-plugin-runtime", "User")
+
+# Optional: or copy a runtime to the legacy lookup path
+$runtimeSource = Join-Path $env:USERPROFILE "plugins\spotify-plugin-runtime"
+New-Item -ItemType Directory -Force -Path $runtimeSource | Out-Null
+Copy-Item -Path ".\release\spotify-plugin-runtime\*" -Destination $runtimeSource -Recurse -Force
+```
+
+For Spotify auth, create a Spotify Developer app with redirect URI
+`http://127.0.0.1:43210/callback`, then set:
+
+```powershell
+[Environment]::SetEnvironmentVariable("SPOTIFY_CLIENT_ID", "<spotify-client-id>", "User")
+[Environment]::SetEnvironmentVariable("SPOTIFY_REDIRECT_URI", "http://127.0.0.1:43210/callback", "User")
+```
+
+Verify the install by calling the CLI shim directly:
+
+```powershell
+& "$env:USERPROFILE\plugins\spotify-plugin\bin\spotify.ps1" auth status --json
+```
+
+Do not use bare `spotify` on Windows; it can resolve to the Spotify desktop app — always call the
+shim path shown above.
+
+## Install for Codex
 
 Use this flow from a fresh Codex session after cloning the repo. It installs the lean Codex plugin
 and the separate CLI runtime into the user's personal plugin area.
@@ -96,10 +184,11 @@ For Spotify auth, create a Spotify Developer app with redirect URI
 Start a new Codex thread after install so plugin skills are loaded. Do not use bare `spotify` on
 Windows; it can resolve to the Spotify desktop app.
 
-Branch intent:
+## Branch intent
 
-- `main`: project overview, release framing, and documentation.
-- `codex`: active implementation branch for the Spotify plugin work.
+- `main`: stable project overview, release framing, and documentation.
+- `codex`: Codex implementation history for the Spotify plugin work.
+- `claude`: Claude Code conversion work — dual-manifest packaging and Claude Code install flow.
 
 Initial priorities:
 
