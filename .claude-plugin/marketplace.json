@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "agentic-spotify-plugin",
+  "description": "CLI-first Spotify plugin for agentic coding tools — auth, playlists, queue, search.",
+  "owner": {
+    "name": "MungoHarvey",
+    "email": "mungo@the-harveys.org"
+  },
+  "plugins": [
+    {
+      "name": "spotify-plugin",
+      "description": "CLI-first Spotify plugin for agentic coding tools — auth, playlists, queue, search.",
+      "source": "./release/spotify-plugin",
+      "category": "productivity"
+    }
+  ]
+}

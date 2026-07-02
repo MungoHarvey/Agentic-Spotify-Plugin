@@ -1,0 +1,21 @@
+{
+  "name": "spotify-plugin",
+  "version": "0.1.0",
+  "description": "CLI-first Spotify plugin for agentic coding tools — auth, playlists, queue, search.",
+  "author": {
+    "name": "MungoHarvey",
+    "email": "mungo@the-harveys.org",
+    "url": "https://github.com/MungoHarvey"
+  },
+  "homepage": "https://github.com/MungoHarvey/Agentic-Spotify-Plugin",
+  "repository": "https://github.com/MungoHarvey/Agentic-Spotify-Plugin",
+  "license": "MIT",
+  "keywords": [
+    "spotify",
+    "cli",
+    "pkce",
+    "playlist",
+    "queue",
+    "claude-code"
+  ]
+}
