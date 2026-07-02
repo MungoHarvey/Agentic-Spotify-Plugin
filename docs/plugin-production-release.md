@@ -2,12 +2,20 @@
 
 Use `release/spotify-plugin` as the Codex plugin install root. Do not install the repository root as the plugin: the repository root contains source code, tests, planning records, and research notes that are useful for development but too large for a production Codex plugin payload.
 
+The runnable CLI is installed as a separate local runtime at `release/spotify-plugin-runtime`.
+This keeps Codex plugin context small while still letting Codex run Spotify commands from any
+workspace.
+
 ## Production Structure
 
 ```text
 release/spotify-plugin/
   .codex-plugin/
     plugin.json
+  bin/
+    spotify.cmd
+    spotify.mjs
+    spotify.ps1
   skills/
     spotify/
       SKILL.md
@@ -18,24 +26,47 @@ release/spotify-plugin/
         queue-workflows.md
         safety.md
         search-and-resolution.md
+release/spotify-plugin-runtime/
+  bin/
+  src/
+  package.json
+  tsconfig.json
 ```
 
-This keeps the installed plugin context-efficient:
+This keeps the installed plugin portable while staying context-efficient:
 
 - always-loaded trigger cost stays small
 - workflow detail stays in deferred reference files
-- development-only files do not enter the plugin payload
+- the Codex plugin payload only contains skills and thin wrappers
+- the runnable CLI lives in the separate runtime payload
+- tests, plans, and research docs do not enter the plugin payload
 - marketplace name, plugin directory, and manifest name all match `spotify-plugin`
+
+On Windows, invoke the installed plugin CLI from any workspace with:
+
+```powershell
+& "$env:USERPROFILE\plugins\spotify-plugin\bin\spotify.ps1" me --json
+```
+
+Do not rely on bare `spotify`; Windows can resolve that to the Spotify desktop app.
 
 ## Release Build
 
-After changing `skills/spotify` or `.codex-plugin/plugin.json`, rebuild the release folder:
+After changing `skills/spotify`, `.codex-plugin/plugin.json`, `bin/`, or `src/`, rebuild the release folders:
 
 ```powershell
 New-Item -ItemType Directory -Force -Path release\spotify-plugin\.codex-plugin,release\spotify-plugin\skills | Out-Null
 Copy-Item -Path .codex-plugin\plugin.json -Destination release\spotify-plugin\.codex-plugin\plugin.json -Force
 Remove-Item -LiteralPath release\spotify-plugin\skills\spotify -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item -Path skills\spotify -Destination release\spotify-plugin\skills\spotify -Recurse -Force
+Remove-Item -LiteralPath release\spotify-plugin\bin -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item -Path bin -Destination release\spotify-plugin\bin -Recurse -Force
+
+Remove-Item -LiteralPath release\spotify-plugin-runtime -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Force -Path release\spotify-plugin-runtime | Out-Null
+Copy-Item -Path src -Destination release\spotify-plugin-runtime\src -Recurse -Force
+Copy-Item -Path bin -Destination release\spotify-plugin-runtime\bin -Recurse -Force
+Copy-Item -Path package.json,tsconfig.json -Destination release\spotify-plugin-runtime -Force
 ```
 
 ## Validation Gates
@@ -64,6 +95,12 @@ For local global use in Codex, copy the validated release plugin to:
 
 ```text
 %USERPROFILE%\plugins\spotify-plugin
+```
+
+Copy the runtime payload beside it:
+
+```text
+%USERPROFILE%\plugins\spotify-plugin-runtime
 ```
 
 Ensure `%USERPROFILE%\.agents\plugins\marketplace.json` contains:

@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
-import { runAuthLoginSession } from '../../src/cli/commands/auth.ts';
+import { createBrowserOpenCommand, runAuthLoginSession } from '../../src/cli/commands/auth.ts';
 
 function createTempTokenPath() {
   const tempRoot = mkdtempSync(path.join(os.tmpdir(), 'spotify-login-session-'));
@@ -216,4 +216,15 @@ test('runAuthLoginSession text output reports a completed persisted login withou
 
   assert.equal(storedToken.accessToken, 'access-123');
   assert.equal(storedToken.refreshToken, 'refresh-123');
+});
+
+test('Windows browser opener uses the URL handler so query delimiters are preserved', () => {
+  const authorizationUrl = 'https://accounts.spotify.com/authorize?response_type=code&client_id=client-123&state=state-123';
+  const openCommand = createBrowserOpenCommand('win32', authorizationUrl);
+
+  assert.equal(openCommand.command, 'rundll32.exe');
+  assert.deepEqual(openCommand.args, [
+    'url.dll,FileProtocolHandler',
+    authorizationUrl,
+  ]);
 });

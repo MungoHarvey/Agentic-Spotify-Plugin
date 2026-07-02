@@ -2,6 +2,29 @@
 
 Use this file as the routing map for the CLI-first surface.
 
+## Local Invocation
+
+On Windows, do not call bare `spotify` from PowerShell. That name can resolve to the Spotify
+desktop app instead of this plugin's CLI.
+
+When the personal plugin is installed, invoke the plugin CLI from any working directory as:
+
+```powershell
+& "$env:USERPROFILE\plugins\spotify-plugin\bin\spotify.ps1" <group> <command> [options]
+```
+
+The wrapper expects the runtime at `$env:USERPROFILE\plugins\spotify-plugin-runtime`. If it is
+installed elsewhere, set `SPOTIFY_PLUGIN_RUNTIME` to that runtime root.
+
+When working from the development repository root, this fallback is also valid:
+
+```powershell
+node .\src\cli\index.ts <group> <command> [options]
+```
+
+The command names below describe the plugin CLI surface. Prefix them with
+the installed plugin wrapper unless explicitly working inside the development repo.
+
 ## Implemented Commands
 
 - `spotify auth login`

@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "description": "CLI-first Spotify plugin for Codex with a minimal MCP surface.",
   "author": {
-    "name": "OpenAI"
+    "name": "MungoHarvey",
+    "email": "mungo@the-harveys.org",
+    "url": "https://github.com/MungoHarvey"
   },
-  "license": "Proprietary",
+  "homepage": "https://github.com/MungoHarvey/Agentic-Spotify-Plugin",
+  "repository": "https://github.com/MungoHarvey/Agentic-Spotify-Plugin",
+  "license": "MIT",
   "keywords": [
     "spotify",
     "codex",
@@ -20,16 +24,16 @@
     "displayName": "Spotify",
     "shortDescription": "CLI-first Spotify workflows for Codex",
     "longDescription": "Spotify plugin for Codex that centers on the CLI, shared client logic, and a minimal MCP surface. It is designed for local debugging, auth setup, playlist work, and future queue and playback workflows.",
-    "developerName": "OpenAI",
+    "developerName": "MungoHarvey",
     "category": "Productivity",
     "capabilities": [
       "Read",
       "Write",
       "Interactive"
     ],
-    "websiteURL": "https://openai.com/",
-    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
-    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "websiteURL": "https://github.com/MungoHarvey/Agentic-Spotify-Plugin",
+    "privacyPolicyURL": "https://github.com/MungoHarvey/Agentic-Spotify-Plugin",
+    "termsOfServiceURL": "https://github.com/MungoHarvey/Agentic-Spotify-Plugin",
     "defaultPrompt": [
       "Check Spotify auth status.",
       "Open the Spotify CLI help.",

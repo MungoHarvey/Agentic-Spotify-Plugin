@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 
 const repoRoot = new URL('../../', import.meta.url);
@@ -19,6 +22,11 @@ function runCli(args, env = {}) {
       ...env,
     },
   });
+}
+
+function createMissingTokenPath() {
+  const tempRoot = mkdtempSync(path.join(os.tmpdir(), 'spotify-auth-refresh-'));
+  return path.join(tempRoot, 'missing-tokens.json');
 }
 
 test('spotify auth login --url-only --json returns a local authorization URL payload', () => {
@@ -82,6 +90,7 @@ test('spotify auth login --url-only fails clearly when SPOTIFY_CLIENT_ID is miss
 test('spotify auth refresh fails clearly when unauthenticated', () => {
   const result = runCli(['auth', 'refresh'], {
     SPOTIFY_CLIENT_ID: 'client-123',
+    SPOTIFY_TOKEN_PATH: createMissingTokenPath(),
   });
 
   assert.notEqual(result.status, 0);
