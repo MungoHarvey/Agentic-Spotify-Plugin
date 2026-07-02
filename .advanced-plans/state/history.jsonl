@@ -51,3 +51,5 @@
 {"event":"phase_planned","phase":"phase-7","branch":"claude","loops":5,"todos":15,"date":"2026-07-02"}
 {"phase":"phase-7","loop":"ralph-loop-001","status":"completed","done":"Claude Code manifest and repo marketplace.json created and validated as JSON; Codex manifest untouched.","failed":"","needed":"Run plugin-validator after loop 002 skill rewrite."}
 {"phase":"phase-7","loop":"ralph-loop-002","status":"completed","done":"SKILL.md descriptions rewritten agent-agnostic, references swept, release mirror byte-identical.","failed":"","needed":"Run plugin-validator, tests, shim smoke test, and local install attempt."}
+{"phase":"phase-7","loop":"ralph-loop-003","status":"completed","done":"Runtime bundled into payload; validator error fixed; CLAUDE_PLUGIN_ROOT-aware skill docs; payload README+LICENSE; marketplace install verified end-to-end; 136 tests pass.","failed":"","needed":"Finish docs revision for bundled runtime story."}
+{"phase":"phase-7","loop":"ralph-loop-004","status":"completed","done":"README and release doc rewritten for dual Claude+Codex surfaces with bundled-runtime install story.","failed":"","needed":"Loop 005 phase review and gate verdict."}
