@@ -103,6 +103,10 @@ verified GitHub repo, docs site, and release cadence, but this is a fast-moving,
 project — re-verify at implementation time if the user meant something else.
 Source: [github.com/nousresearch/hermes-agent](https://github.com/nousresearch/hermes-agent)
 
+**Confirmed 2026-07-02:** the project owner confirmed Hermes Agent (NousResearch) is the
+intended referent — an autonomous agent in the same family as OpenClaw. Both are served by the
+same payload (agentskills.io skills + AGENTS.md); no configuration fork required.
+
 **Verified:**
 
 - Install is a shell installer (`curl ... install.sh | bash` / `irm ... install.ps1` on

@@ -106,10 +106,11 @@ workspace so OpenClaw reads it as the scoped SOP for this subtree.
 
 ## Hermes Agent (NousResearch)
 
-**Naming note:** "Hermes" is ambiguous in the Nous Research ecosystem — Nous also publishes a
-Hermes LLM model series, which is not an agent runtime. This section targets **Hermes Agent**
-(`github.com/nousresearch/hermes-agent`), the self-hosted personal agent with a CLI/TUI/Electron
-app and messaging gateways.
+This section targets **Hermes Agent** (`github.com/nousresearch/hermes-agent`), Nous Research's
+self-hosted autonomous agent with a CLI/TUI/Electron app and messaging gateways. Like OpenClaw,
+it consumes `agentskills.io`-standard skills and reads `AGENTS.md`, so the same payload serves
+both runtimes without configuration forks. (Not to be confused with Nous's Hermes LLM model
+series, which is not an agent runtime.)
 
 Hermes Agent's skills are explicitly `agentskills.io`-compatible. Point it at the plugin's
 skills via an external directory in `~/.hermes/config.yaml`:
