@@ -4,15 +4,23 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import type { StoredTokenData } from './tokens.ts';
+// @ts-ignore - Importing local TS modules directly is how this scaffold runs under NodeNext.
+import { resolveSpotifyClientId, type SpotifyEnv } from '../config/env.ts';
 
 export type AuthStatus =
   | {
       authenticated: false;
+      clientIdConfigured: boolean;
+      clientIdSource?: 'env' | 'token-store';
+      refreshable: false;
     }
   | {
       authenticated: true;
       expiresAt: number;
       scopes: string[];
+      clientIdConfigured: boolean;
+      clientIdSource?: 'env' | 'token-store';
+      refreshable: boolean;
       tokenType?: string;
       obtainedAt?: number;
     };
@@ -44,10 +52,21 @@ export async function deleteTokenStore(filePath: string): Promise<void> {
   await rm(filePath, { force: true });
 }
 
-export function createAuthStatus(tokenData: StoredTokenData | null): AuthStatus {
+export function createAuthStatus(tokenData: StoredTokenData | null, env: SpotifyEnv = {}): AuthStatus {
+  let clientIdSource: 'env' | 'token-store' | undefined;
+
+  try {
+    clientIdSource = resolveSpotifyClientId(env, tokenData?.clientId).source;
+  } catch {
+    clientIdSource = undefined;
+  }
+
   if (!tokenData) {
     return {
       authenticated: false,
+      clientIdConfigured: clientIdSource !== undefined,
+      ...(clientIdSource ? { clientIdSource } : {}),
+      refreshable: false,
     };
   }
 
@@ -55,6 +74,9 @@ export function createAuthStatus(tokenData: StoredTokenData | null): AuthStatus 
     authenticated: true,
     expiresAt: tokenData.expiresAt,
     scopes: tokenData.scope ?? [],
+    clientIdConfigured: clientIdSource !== undefined,
+    ...(clientIdSource ? { clientIdSource } : {}),
+    refreshable: clientIdSource !== undefined && tokenData.refreshToken.trim().length > 0,
     tokenType: tokenData.tokenType,
     obtainedAt: tokenData.obtainedAt,
   };

@@ -49,7 +49,7 @@ test('runAuthRefreshSession fails clearly when the token file is missing', async
   assert.match(stderr, /Unauthenticated/i);
 });
 
-test('runAuthRefreshSession fails clearly when SPOTIFY_CLIENT_ID is missing', async () => {
+test('runAuthRefreshSession fails clearly when no client ID is available', async () => {
   const { tokenPath } = createTempTokenPath();
   writeFileSync(
     tokenPath,
@@ -90,15 +90,16 @@ test('runAuthRefreshSession fails clearly when SPOTIFY_CLIENT_ID is missing', as
 
   assert.equal(exitCode, 1);
   assert.equal(stdout, '');
-  assert.match(stderr, /Missing required environment variable SPOTIFY_CLIENT_ID\./);
+  assert.match(stderr, /Missing Spotify client ID/);
 });
 
-test('runAuthRefreshSession refreshes tokens, preserves the refresh token, and redacts output', async () => {
+test('runAuthRefreshSession refreshes tokens from env client ID, preserves metadata, and redacts output', async () => {
   const { tokenPath } = createTempTokenPath();
   const storedTokenData = {
     accessToken: 'old-access',
     refreshToken: 'old-refresh',
     expiresAt: 1234567890,
+    clientId: 'stored-client-123',
     tokenType: 'Bearer',
     scope: ['scope-a', 'scope-b'],
     obtainedAt: 1234560000,
@@ -155,6 +156,9 @@ test('runAuthRefreshSession refreshes tokens, preserves the refresh token, and r
       authenticated: true,
       expiresAt: 1700003600000,
       scopes: ['scope-a', 'scope-b'],
+      clientIdConfigured: true,
+      clientIdSource: 'env',
+      refreshable: true,
       tokenType: 'Bearer',
       obtainedAt: 1700000000000,
     },
@@ -170,8 +174,72 @@ test('runAuthRefreshSession refreshes tokens, preserves the refresh token, and r
     accessToken: 'new-access',
     refreshToken: 'old-refresh',
     expiresAt: 1700003600000,
+    clientId: 'stored-client-123',
     tokenType: 'Bearer',
     scope: ['scope-a', 'scope-b'],
     obtainedAt: 1700000000000,
   });
+});
+
+test('runAuthRefreshSession refreshes using the stored client ID when env is unset', async () => {
+  const { tokenPath } = createTempTokenPath();
+  const storedTokenData = {
+    accessToken: 'old-access',
+    refreshToken: 'old-refresh',
+    expiresAt: 1234567890,
+    clientId: 'stored-client-123',
+    tokenType: 'Bearer',
+    scope: ['scope-a'],
+    obtainedAt: 1234560000,
+  };
+
+  writeFileSync(tokenPath, `${JSON.stringify(storedTokenData, null, 2)}\n`, 'utf8');
+
+  let stdout = '';
+  let stderr = '';
+  let refreshInput = null;
+
+  const exitCode = await runAuthRefreshSession({
+    json: true,
+    env: {
+      SPOTIFY_TOKEN_PATH: tokenPath,
+    },
+    refreshAccessToken: async (input) => {
+      refreshInput = input;
+
+      return {
+        accessToken: 'new-access',
+        refreshToken: '',
+        expiresAt: 1700003600000,
+        tokenType: 'Bearer',
+        scope: ['scope-a'],
+        obtainedAt: 1700000000000,
+      };
+    },
+    stdout: {
+      write(value) {
+        stdout += value;
+      },
+    },
+    stderr: {
+      write(value) {
+        stderr += value;
+      },
+    },
+  });
+
+  assert.equal(exitCode, 0);
+  assert.equal(stderr, '');
+  assert.deepEqual(refreshInput, {
+    clientId: 'stored-client-123',
+    refreshToken: 'old-refresh',
+    fetchImpl: globalThis.fetch,
+  });
+
+  const payload = JSON.parse(stdout);
+
+  assert.equal(payload.authenticated.clientIdConfigured, true);
+  assert.equal(payload.authenticated.clientIdSource, 'token-store');
+  assert.equal(payload.authenticated.refreshable, true);
+  assert.equal(stdout.includes('stored-client-123'), false);
 });

@@ -2,6 +2,7 @@ export type StoredTokenData = {
   accessToken: string;
   refreshToken: string;
   expiresAt: number;
+  clientId?: string;
   tokenType?: string;
   scope?: string[];
   obtainedAt?: number;

@@ -46,6 +46,8 @@ test('spotify auth status --json reports unauthenticated when the token file is 
   assert.equal(result.stderr, '');
   assert.deepEqual(JSON.parse(result.stdout), {
     authenticated: false,
+    clientIdConfigured: false,
+    refreshable: false,
   });
 });
 
@@ -55,6 +57,7 @@ test('spotify auth status --json reports authenticated metadata without token va
     accessToken: 'test-access-token',
     refreshToken: 'test-refresh-token',
     expiresAt: 1234567890,
+    clientId: 'stored-client-id',
     tokenType: 'Bearer',
     scope: ['playlist-read-private', 'user-read-private'],
     obtainedAt: 1234560000,
@@ -72,9 +75,13 @@ test('spotify auth status --json reports authenticated metadata without token va
     authenticated: true,
     expiresAt: 1234567890,
     scopes: ['playlist-read-private', 'user-read-private'],
+    clientIdConfigured: true,
+    clientIdSource: 'token-store',
+    refreshable: true,
     tokenType: 'Bearer',
     obtainedAt: 1234560000,
   });
+  assert.equal(result.stdout.includes(tokenData.clientId), false);
   assert.equal(result.stdout.includes(tokenData.accessToken), false);
   assert.equal(result.stdout.includes(tokenData.refreshToken), false);
 });
@@ -85,6 +92,7 @@ test('spotify auth status text output never includes token values', () => {
     accessToken: 'text-access-token',
     refreshToken: 'text-refresh-token',
     expiresAt: 1234567890,
+    clientId: 'text-client-id',
     tokenType: 'Bearer',
     scope: ['playlist-read-private'],
     obtainedAt: 1234560000,
@@ -100,7 +108,9 @@ test('spotify auth status text output never includes token values', () => {
   assert.equal(result.stderr, '');
   assert.equal(result.stdout.includes(tokenData.accessToken), false);
   assert.equal(result.stdout.includes(tokenData.refreshToken), false);
+  assert.equal(result.stdout.includes(tokenData.clientId), false);
   assert.equal(result.stdout.includes('authenticated'), true);
+  assert.equal(result.stdout.includes('Client ID source: token-store'), true);
 });
 
 test('spotify auth logout deletes the token file and succeeds when it is already absent', () => {

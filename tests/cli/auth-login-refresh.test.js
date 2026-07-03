@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
@@ -80,8 +83,10 @@ test('spotify auth login --url-only fails clearly when SPOTIFY_CLIENT_ID is miss
 });
 
 test('spotify auth refresh fails clearly when unauthenticated', () => {
+  const tempRoot = mkdtempSync(path.join(os.tmpdir(), 'spotify-auth-refresh-missing-'));
   const result = runCli(['auth', 'refresh'], {
     SPOTIFY_CLIENT_ID: 'client-123',
+    SPOTIFY_TOKEN_PATH: path.join(tempRoot, 'tokens.json'),
   });
 
   assert.notEqual(result.status, 0);

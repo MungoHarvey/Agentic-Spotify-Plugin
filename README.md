@@ -24,6 +24,12 @@ Current documentation:
 - [Spotify auth setup](docs/spotify-auth-setup.md): local PKCE setup, commands, and safety notes.
 - [Plugin production release](docs/plugin-production-release.md): lean release structure, validation gates, and personal marketplace install flow.
 
+Auth setup note:
+
+- Set `SPOTIFY_CLIENT_ID` before the first login. `spotify auth login` stores that non-secret app ID
+  with the token metadata, so normal commands can refresh expired tokens later even if the current
+  shell does not have the environment variable.
+
 Branch intent:
 
 - `main`: project overview, release framing, and documentation.

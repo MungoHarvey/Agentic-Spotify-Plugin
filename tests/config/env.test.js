@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { loadSpotifyConfig } from '../../src/config/env.ts';
+import { loadSpotifyConfig, resolveSpotifyClientId } from '../../src/config/env.ts';
 
 const defaultScopes = [
   'playlist-read-private',
@@ -44,5 +44,25 @@ test('loadSpotifyConfig parses space-separated scopes from the provided env', ()
 test('loadSpotifyConfig throws when SPOTIFY_CLIENT_ID is missing', () => {
   assert.throws(() => loadSpotifyConfig({}), {
     message: 'Missing required environment variable SPOTIFY_CLIENT_ID.',
+  });
+});
+
+test('resolveSpotifyClientId prefers env over stored client ID', () => {
+  assert.deepEqual(resolveSpotifyClientId({ SPOTIFY_CLIENT_ID: ' env-client ' }, 'stored-client'), {
+    clientId: 'env-client',
+    source: 'env',
+  });
+});
+
+test('resolveSpotifyClientId falls back to stored client ID', () => {
+  assert.deepEqual(resolveSpotifyClientId({}, ' stored-client '), {
+    clientId: 'stored-client',
+    source: 'token-store',
+  });
+});
+
+test('resolveSpotifyClientId throws when neither env nor token store has a client ID', () => {
+  assert.throws(() => resolveSpotifyClientId({}, ''), {
+    message: 'Missing Spotify client ID. Set SPOTIFY_CLIENT_ID or run spotify auth login again to persist the client ID.',
   });
 });

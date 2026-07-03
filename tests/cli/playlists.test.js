@@ -131,6 +131,7 @@ test('spotify playlists list --json refreshes expired token data before listing 
         accessToken: 'expired-access',
         refreshToken: 'old-refresh',
         expiresAt: 1700000001000,
+        clientId: 'stored-client-123',
         tokenType: 'Bearer',
         scope: ['playlist-read-private'],
         obtainedAt: 1699996400000,
@@ -195,7 +196,6 @@ test('spotify playlists list --json refreshes expired token data before listing 
       throw new Error(\`Unexpected fetch URL: \${url}\`);
     }`,
     {
-      SPOTIFY_CLIENT_ID: 'client-123',
       SPOTIFY_TOKEN_PATH: tokenPath,
     },
     1700000000000,
@@ -223,6 +223,7 @@ test('spotify playlists list --json refreshes expired token data before listing 
     accessToken: 'fresh-access',
     refreshToken: 'old-refresh',
     expiresAt: 1700003600000,
+    clientId: 'stored-client-123',
     tokenType: 'Bearer',
     scope: ['playlist-read-private'],
     obtainedAt: 1700000000000,

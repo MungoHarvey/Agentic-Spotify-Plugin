@@ -15,7 +15,7 @@ import { generateOAuthState } from '../../auth/oauth-state.ts';
 // @ts-ignore - Importing local TS modules directly is how this scaffold runs under NodeNext.
 import type { StoredTokenData } from '../../auth/tokens.ts';
 // @ts-ignore - Importing local TS modules directly is how this scaffold runs under NodeNext.
-import { loadSpotifyConfig } from '../../config/env.ts';
+import { loadSpotifyConfig, resolveSpotifyClientId } from '../../config/env.ts';
 // @ts-ignore - Importing local TS modules directly is how this scaffold runs under NodeNext.
 import { getTokenStorePathHint } from '../../config/paths.ts';
 
@@ -39,11 +39,17 @@ type AuthCliEnv = {
 type AuthStatusOutput =
   | {
       authenticated: false;
+      clientIdConfigured: boolean;
+      clientIdSource?: 'env' | 'token-store';
+      refreshable: false;
     }
   | {
       authenticated: true;
       expiresAt: number;
       scopes: string[];
+      clientIdConfigured: boolean;
+      clientIdSource?: 'env' | 'token-store';
+      refreshable: boolean;
       tokenType?: string;
       obtainedAt?: number;
     };
@@ -149,14 +155,30 @@ function serializeAuthorizationUrl(url: {
 
 function formatAuthStatusText(status: AuthStatusOutput): string {
   if (!status.authenticated) {
-    return ['Auth status: unauthenticated', ''].join('\n');
+    const lines = [
+      'Auth status: unauthenticated',
+      `Client ID configured: ${status.clientIdConfigured ? 'yes' : 'no'}`,
+      `Refresh possible: ${status.refreshable ? 'yes' : 'no'}`,
+    ];
+
+    if (status.clientIdSource) {
+      lines.push(`Client ID source: ${status.clientIdSource}`);
+    }
+
+    return `${lines.join('\n')}\n`;
   }
 
   const lines = [
     'Auth status: authenticated',
     `Expires at: ${status.expiresAt}`,
     `Scopes: ${status.scopes.length > 0 ? status.scopes.join(', ') : '(none)'}`,
+    `Client ID configured: ${status.clientIdConfigured ? 'yes' : 'no'}`,
+    `Refresh possible: ${status.refreshable ? 'yes' : 'no'}`,
   ];
+
+  if (status.clientIdSource) {
+    lines.push(`Client ID source: ${status.clientIdSource}`);
+  }
 
   if (status.tokenType) {
     lines.push(`Token type: ${status.tokenType}`);
@@ -325,15 +347,19 @@ async function runAuthLoginSessionInternal({
     }
 
     const tokenData = await exchangeCode(tokenExchangeInput as Parameters<typeof exchangeCode>[0]);
+    const persistedTokenData: StoredTokenData = {
+      ...tokenData,
+      clientId: config.clientId,
+    };
 
-    await writeStore(tokenPath, tokenData);
+    await writeStore(tokenPath, persistedTokenData);
 
     const payload: AuthLoginSessionPayload = {
       authorizationUrl,
       redirectUri,
       scopes: [...config.scopes],
       state,
-      authenticated: createAuthStatus(tokenData) as AuthSuccessStatus,
+      authenticated: createAuthStatus(persistedTokenData, env) as AuthSuccessStatus,
       tokenStorePath: tokenPath,
     };
 
@@ -388,6 +414,7 @@ function mergeRefreshedTokenData(
   return {
     ...refreshedTokenData,
     refreshToken,
+    ...(currentTokenData.clientId ? { clientId: currentTokenData.clientId } : {}),
   };
 }
 
@@ -404,16 +431,16 @@ async function runAuthRefreshSessionInternal({
   stderr = process.stderr,
 }: AuthRefreshSessionOptions): Promise<number> {
   try {
-    const config = loadConfig(env);
     const tokenPath = tokenStorePath?.trim() || getStorePath(env);
     const tokenData = await readStore(tokenPath);
     if (!tokenData) {
       throw new Error('Unauthenticated. Run spotify auth login first.');
     }
 
+    const clientId = resolveSpotifyClientId(env, tokenData.clientId).clientId;
     const refreshToken = getRefreshTokenOrThrow(tokenData);
     const refreshedTokenData = await refreshTokenExchange({
-      clientId: config.clientId,
+      clientId,
       refreshToken,
       fetchImpl: fetch,
     });
@@ -422,7 +449,7 @@ async function runAuthRefreshSessionInternal({
     await writeStore(tokenPath, updatedTokenData);
 
     const payload: AuthRefreshSessionPayload = {
-      authenticated: createAuthStatus(updatedTokenData) as AuthSuccessStatus,
+      authenticated: createAuthStatus(updatedTokenData, env) as AuthSuccessStatus,
       tokenStorePath: tokenPath,
     };
 
@@ -469,9 +496,9 @@ export async function runAuthRefreshCommand(json = detectJsonFlag(process.argv),
   });
 }
 
-async function runStatusCommand(json: boolean, tokenPath: string): Promise<void> {
+async function runStatusCommand(json: boolean, tokenPath: string, env: Record<string, string | undefined>): Promise<void> {
   const tokenData = await readTokenStore(tokenPath);
-  const status = createAuthStatus(tokenData);
+  const status = createAuthStatus(tokenData, env);
 
   if (json) {
     process.stdout.write(`${JSON.stringify(status, null, 2)}\n`);
@@ -506,7 +533,7 @@ export async function runAuthCommand(argv: string[], env = process.env): Promise
   }
 
   if (command === 'status') {
-    await runStatusCommand(rest.includes('--json'), tokenPath);
+    await runStatusCommand(rest.includes('--json'), tokenPath, env);
     return 0;
   }
 

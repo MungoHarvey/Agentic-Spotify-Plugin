@@ -3,7 +3,7 @@ import { readTokenStore, writeTokenStore as persistTokenStore } from '../../auth
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import { refreshAccessToken } from '../../auth/token-exchange.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
-import { loadSpotifyConfig } from '../../config/env.ts';
+import { loadSpotifyConfig, resolveSpotifyClientId } from '../../config/env.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
 import { getTokenStorePathHint } from '../../config/paths.ts';
 // @ts-ignore - Node types are not wired into this scaffold yet.
@@ -75,6 +75,7 @@ function mergeRefreshedTokenData(
   return {
     ...refreshedTokenData,
     refreshToken,
+    ...(currentTokenData.clientId ? { clientId: currentTokenData.clientId } : {}),
   };
 }
 
@@ -110,9 +111,9 @@ async function runQueueGetSessionInternal({
           throw new Error('Stored token data is missing a refresh token.');
         }
 
-        const config = loadConfig(env);
+        const clientId = resolveSpotifyClientId(env, currentTokenData.clientId).clientId;
         const refreshedTokenData = await refreshTokenExchange({
-          clientId: config.clientId,
+          clientId,
           refreshToken,
           fetchImpl,
         });
